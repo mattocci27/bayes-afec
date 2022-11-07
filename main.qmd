@@ -1,0 +1,998 @@
+---
+pagetitle: "Bayesian estimation and ecology"
+author: "Masatoshi Katabuchi"
+date: "November 10, 2022"
+host: "XTBG AFEC"
+institute: "XTBG, CAS"
+strip-comments: true
+format:
+  revealjs:
+    logo: images/xtbg_logo.png
+    chalkboard: true
+    slide-number: true
+    multiplex: true
+    # theme: simple
+    theme: assets/rladies.scss
+    show-slide-number: all
+    controls: true
+    width: 1440
+    height: 810
+    # width: 1280
+    # height: 720
+    #css: [assets/custom.css, assets/tachyons-addon.css]
+    css: [assets/custom.css]
+    include-after: |
+      <link rel="stylesheet" href="assets/syntax-highlight.css">
+      <link rel="stylesheet" href="assets/fontawesome-free-6.1.1-web/css/all.min.css">
+      <script src="assets/fontawesome-free-6.1.1-web/js/all.min.js"></script>
+callout-icon: false
+execute:
+  echo: true
+---
+
+```{r external, child="setup.Rmd", include=FALSE}
+```
+
+
+##  {#title-slide background="images/tree_bg.png" background-size="40%"}
+
+::: title-box
+<h2>
+
+`r rmarkdown::metadata$pagetitle`
+
+</h2>
+
+<h3>
+🧑🏻‍💻 [`r rmarkdown::metadata$author` \@ `r rmarkdown::metadata$institute`]{.author}
+
+
+`r rotating_text(c('<i class="fa-solid fa-envelope"></i> mattocci27@gmail.com', '<i class="fa-brands fa-twitter"></i> @mattocci', '<i class="fa-brands fa-github"></i> github.com/mattocci27/phy-fun-div', '<i class="fa-solid fa-globe"></i> https://mattocci27.github.io'))`
+</h3>
+:::
+
+
+<br><br>
+
+::: {.absolute .top-0 .w-100}
+[`r rmarkdown::metadata$date`]{.fl} [`r rmarkdown::metadata$host`]{.fr}
+:::
+
+
+::: notes
+hoge
+:::
+
+---
+
+## Objectives
+
+::: incremental
+::: large
+- We Learn
+
+  - Why multilevel models are important
+
+  - Why Bayesian estimation is useful
+
+- We Do Not Learn
+
+  - How to use and code Bayesian models in R
+:::
+:::
+
+::: notes
+- coding exercises are not the focus of this workshop
+- it will take a couple of days
+:::
+
+
+# Likelihood
+
+::: fragment
+::: large
+Assuming everyone knows the concept of likelihood
+:::
+:::
+
+::: notes
+Am I correct?
+:::
+
+---
+
+## Likelihood
+
+::: columns
+
+::: {.column width=40%}
+```{r, fig.height=7}
+x <- seq(-5, 5, length.out = 100)
+y <- dnorm(x, mean = 0, sd = 1)
+tibble(x, y) |>
+  ggplot() +
+  xlab("x") +
+  ylab("Likelihood") +
+  ggtitle("N(0, 1)") +
+  geom_line(aes(x, y)) +
+  theme(
+    axis.title   = element_text(size = 32),
+    axis.text    = element_text(size = 28))
+```
+::: small
+$f(x \mid \mu, \sigma) = \frac{1}{\sqrt{2\pi\sigma^2}}\mathrm{exp} \bigl[{-\frac{1}{2}\bigl\{\frac{x-\mu}{\sigma}}\bigr\}^2\bigr]$
+:::
+
+:::
+::: {.column width=60%}
+::: incremental
+- A likelihood function is a probability density (mass) function of parameters and data, and it indicates the probability of observing the data for a given set of parameters.
+
+- e.g., when your model is $x \sim \mathcal{N}(\mu = 0, \sigma^2 = 1)$ (normal distribution with mean 0 and variance 1), what is the probability of observing x = 1.96?
+:::
+
+::: fragment
+- Likelihood: $L = P(x = 1.96 \mid \mu = 0, \sigma = 1)$
+:::
+
+::: fragment
+```{r, echo=TRUE}
+dnorm(1.96, mean = 0, sd = 1)
+```
+:::
+
+:::
+
+:::
+
+::: notes
+- likelihood is all about probability density (mass) function (normal, log-normal, poisson, beta, gamma, binomial, negative-binomial...)
+:::
+
+---
+
+## Likelihood
+
+::: incremental
+
+- When you data is x = {-1.5, 0, 1.5} and your model is $x \sim \mathcal{N}(0, 1)$, what is the probability of observing y?
+- $L = P(-1.5 \mid 0, 1) \times P(0 \mid 0, 1) \times P(1.5 \mid 0, 1)$
+- $\mathrm{log}L = \mathrm{log}P(-1.5 \mid 0, 1) + \mathrm{log}P(0 \mid 0, 1) +  \mathrm{log}P(1.5 \mid 0, 1)$
+
+::: fragment
+```{r, echo=TRUE}
+dnorm(-1.5, mean = 0, sd = 1, log = TRUE) + dnorm(0, mean = 0, sd = 1, log = TRUE) + dnorm(1.5, mean = 0, sd = 1, log = TRUE)
+```
+:::
+
+- What if your model is $x \sim \mathcal{N}(2, 1)$?
+
+::: fragment
+```{r, echo=TRUE}
+dnorm(-1.5, mean = 2, sd = 1, log = TRUE) + dnorm(0, mean = 2, sd = 1, log = TRUE) + dnorm(1.5, mean = 2, sd = 1, log = TRUE)
+```
+:::
+
+- Because we usually don't know the true parameters ($\mu$ and $\sigma$), we need to find the parameters that maximize the likelihood function (**Maximum Likelihood Estimation**).
+
+  - e.g., for a liner model $y = ax + b$, we estimate $a$, $b$, and $\sigma$ that maximize the following likelihood function: $P(y \mid ax + b, \sigma)$
+
+:::
+
+::: notes
+- to find the maximum point of the function, we differentiate the function, and solve the derivative function
+:::
+
+---
+
+## Outline
+
+- Multilevel Model
+
+- Theory
+
+- Prior
+
+# Multilevel Models
+
+---
+
+::: columns
+::: {.column width="40%"}
+![](images/comita_cover.jpg)
+:::
+
+::: {.column width="60%"}
+*A seedling carpet dominated by Dipteryx oleifera (almendro) in the forest understory of Barro Colorado Island, Panama. Seedlings here have a lower probability of surviving when surrounded by neighbors of their own species. However, rare species suffer more from the presence of like neighbors than do common species, suggesting a mechanism that shapes species abundances in diverse tropical forest communities.*
+:::
+:::
+
+::: footer
+[1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010).
+:::
+
+---
+
+
+## Multilevel model (verbal model)
+
+::: footer
+Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010).
+:::
+
+::: small
+There is negative density dependence (NDD) of seedling survival rate, and the strength of NDD varies among species.
+The strength of NDD depends on species abundance.
+
+- Model survival rates as a function of conspecific seedling density (individual-level).
+- Model the strength of NDD (i.e., slopes) as a function of species abundance (group-level).
+:::
+
+```{r, echo=FALSE, fig.width=15, fig.height=5, fig.retina=3}
+set.seed(123)
+n_sp <- 10
+n_rep <- 80
+trait <- rnorm(n_sp, 0, 1)
+gamma0 <- -0.8
+gamma1 <- 0.3
+b1_hat <- gamma1 * trait + gamma0
+b1 <- rnorm(n_sp, b1_hat, 0.1)
+
+b0 <- rnorm(n_sp, 0, 0.5)
+y_fun <- function(beta0, beta1) beta0 + beta1 * xx
+xx <- seq(-3, 3, length = n_rep)
+z <- map2(as.list(b0), as.list(b1), y_fun) |> unlist()
+
+tmp <- tibble(z,
+              x = rep(xx, n_sp),
+              sp = rep(paste0("sp", 1:n_sp), each = n_rep))
+
+tmp2 <- tibble(x = xx, y = gamma1 * xx + gamma0)
+logistic <- function(z) 1 / (1 + exp(-z))
+
+p1 <- tmp |>
+  ggplot(aes(x = x, y = logistic(z), col = sp)) +
+  geom_line() +
+  xlab("Conspecific density") +
+  ylab("Survival rates") +
+  theme(legend.position = "none")
+
+p2 <- tmp |>
+  ggplot(aes(x = x, y = z, col = sp)) +
+  geom_line() +
+  xlab("Conspecific density") +
+  ylab("logit(Survival rates)") +
+  theme(legend.position = "none")
+
+p3 <- tmp2 |>
+  ggplot(aes(x = x, y = y)) +
+  geom_line() +
+  xlab("Abundance") +
+  ylab("Strength of NDD") +
+  theme(legend.position = "none")
+
+p1 + p2 + p3
+```
+---
+
+## Multilevel model (non-verbal model)
+
+::: footer
+Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010).
+:::
+
+
+::: columns
+
+::: {.column width=50%}
+```{stan, output.var="mv_logistic",file=here('stan/mv_logistic.stan'), eval=FALSE, echo=TRUE}
+```
+:::
+
+::: {.column width=50%}
+::: small
+- $s_{i,j} \sim \mathcal{B}(p_{i, j})$
+
+- $\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}$
+
+- $\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}$
+
+- $L \sim \mathrm{LkjCholesky}(\eta)$
+
+- $z_j \sim \mathcal{N}(0, 1)$
+
+- $\tau \sim \mathrm{Cauchy}(0, 2.5)$
+
+- $\gamma_k \sim \mathcal{N(0, 2.5)}$
+:::
+:::
+
+:::
+
+---
+
+## Baseball statistics
+
+::: footer
+https://www.mlb.com/stats/batting-average
+:::
+
+<img src="images/baseball.png" width =100% style="display: block; margin: auto;"/>
+
+::: notes
+- batting average estimates
+:::
+
+## Eight school problem
+
+::: footer
+[1] Rubin, D. B. Estimation in parallel randomized experiments. Journal of Educational Statistics 6, 377–401 (1981).
+
+[2] Gelman, A. et al. Bayesian Data Analysis, Third Edition. (Chapman & Hall/CRC, 2013).
+:::
+
+![](images/eight_schools.png)
+
+::: notes
+- S A T
+- data has 8 rows with mean effects and SD of the effects
+- not straightforward
+:::
+
+---
+
+## Eight species problem
+
+::: footer
+Newly developed example
+:::
+
+What is the survival rate?
+
+::: columns
+::: {.column width="30%"}
+```{r}
+dummy_simple <- tar_read(dummy_simple)
+dummy_simple |>
+  dplyr::select(sp:suv) |>
+  knitr::kable(format = "html") |>
+  kable_material(c("striped", "hover"), full_width = FALSE)
+```
+:::
+
+::: {.column width="70%"}
+
+::: incremental
+
+- suv $\sim$ B(n, p) (Binomial distribution)
+
+- p  = suv / n (Maximum likelihood estimation: MLE)
+
+:::
+
+::: fragment
+```{r, echo = TRUE}
+sum(dummy_simple$suv) / sum(dummy_simple$n)
+```
+```{r}
+suv_pool <- sum(dummy_simple$suv) / sum(dummy_simple$n)
+```
+
+:::
+
+::: incremental
+
+- If we pool all the data, survival rate will be about `r suv_pool |> round(3)`
+
+:::
+
+:::
+
+:::
+
+---
+
+
+## Eight species problem (separate estimates)
+
+What is the survival rate?
+
+::: columns
+::: {.column width="35%"}
+```{r}
+dummy_simple <- tar_read(dummy_simple)
+dummy_simple |>
+  dplyr::select(sp:suv, p_like) |>
+  knitr::kable(format = "html") |>
+  kable_material(c("striped", "hover"), full_width = FALSE)
+```
+:::
+
+::: {.column width="65%"}
+
+
+::: incremental
+
+- If we estimate each species separately, survival rates will be `p_like`
+
+:::
+
+:::
+
+:::
+
+---
+
+## Eight species problem (separate estimates)
+
+What is the survival rate?
+
+::: columns
+::: {.column width="40%"}
+```{r}
+dummy_simple <- tar_read(dummy_simple)
+dummy_simple |>
+ # dplyr::select(sp:suv, p_like) |>
+  knitr::kable(format = "html") |>
+  kable_material(c("striped", "hover"), full_width = FALSE)
+```
+:::
+
+::: {.column width="60%"}
+
+::: incremental
+
+- `p_true` ranges [`r min(dummy_simple$p_true)`, `r max(dummy_simple$p_true)`]
+
+- `p_like` ranges [`r min(dummy_simple$p_like)`, `r max(dummy_simple$p_like)`]
+
+- The estimate shows larger variation (overestimation and underestimation)
+
+- Because of the small sample size
+
+
+:::
+
+::: fragment
+
+```{r, fig.height=4.5, fig.width=7}
+ggplot(dummy_simple, aes(x = p_true, y = p_like)) +
+  geom_point(size = 12, pch = 21) +
+  geom_abline(slope = 1, intercept = 0, lty = 2) +
+  annotate(geom = "text", x = 0.34, y = 0.38, label = "1:1", size = 10, angle = 18) +
+  xlab("True survival rate") +
+  ylab("Estimated \nsurvival rate")
+```
+:::
+
+:::
+
+:::
+
+::: notes
+- These data were simulated based on `p_true`, but the ML estimates are slightly different
+- we want to improve the estimates
+:::
+
+---
+
+## Two extreme cases (pooled estimates)
+
+- $S_i \sim \mathcal{B}(N_i, p)$
+
+![](images/pool.png)
+
+::: incremental
+- This model doesn't consider the variation among species
+:::
+
+---
+
+## Two extreme cases (separate estimates)
+
+- $S_i \sim \mathcal{B}(N_i, p_i)$
+
+![](images/seperate.png)
+
+::: incremental
+- This model assumes that survival rates are 100% independent among species
+
+- We need to find a balance between these two extremes
+:::
+
+::: notes
+- if we have infinite amount of data, we can estimate survival rates separately
+- usually, we don't have enough data (model tends to overfit)
+:::
+
+---
+
+## More realistic estimates (multilevel models)
+
+- $S_i \sim \mathcal{B}(N_i, p_i)$
+
+- $z_i \sim \mathcal{N}(\mu, \sigma)$ where $z_i = \mathrm{logit}(p_i) = \mathrm{log}\frac{p_i}{1 - p_i}$
+
+![](images/multilevel.png)
+
+---
+
+## $\sigma$ determines species variation
+
+When the overall survival rate is 0.5.
+
+
+::: columns
+::: {.column width=50%}
+```{r, fig.height=8}
+set.seed(123)
+z <- 0
+sig1 <- 0.1
+sig2 <- 1
+n_sp <- 8
+sig <- 0.2
+
+xx <- seq(-3, 3, length = 100)
+mu1 <- rnorm(n_sp, z, sig1)
+mu2 <- rnorm(n_sp, z, sig2)
+
+data <- tibble(mu1 = as.list(mu1), mu2 = as.list(mu2), sp = LETTERS[1:8]) |>
+  mutate(y1 = map(mu1, \(mu)dnorm(xx, mu, sig))) |>
+  mutate(y2 = map(mu2, \(mu)dnorm(xx, mu, sig))) |>
+  unnest(cols = c(mu1, mu2, y1, y2))  |>
+  mutate(xx = rep(xx, 8))
+
+p1 <- ggplot(data, aes(x = logistic(xx), y = y1, col = sp)) +
+  geom_line() +
+  xlab("p") +
+  ylab("Density") +
+  theme(legend.position = "none") +
+  ggtitle("sigma = 0.1")
+
+p2 <- ggplot(data, aes(x = logistic(xx), y = y2, col = sp)) +
+  geom_line() +
+  xlab("p") +
+  ylab("Density") +
+  theme(legend.position = "none") +
+  ggtitle("sigma = 1.0")
+
+sigma <- seq(0.01, 3, length = 100)
+y <- dcauchy(sigma, 0, 1)
+
+p3 <- tibble(sigma, y) |>
+  ggplot(aes(x = sigma, y = y)) +
+  geom_line() +
+  xlab("Sigma") +
+  ylab("Density") +
+  ggtitle("sigma ~ N(0, 1)")
+p1 / p2
+```
+:::
+
+::: {.column width=50%}
+::: fragment
+```{r, fig.height=8}
+p3
+```
+:::
+
+::: incremental
+- We have some sense of a scale for $\sigma$
+- `logistic(0.3) - 0.5` = `r round(logistic(0.3) - 0.5, 3)`
+- `logistic(3) - 0.5` = `r round(logistic(3) - 0.5, 3)`
+- `logistic(10) - 0.5` = `r round(logistic(10) - 0.5, 5)`
+:::
+:::
+:::
+
+::: notes
+- on the logit scale
+- we have some sense of a scale for sigma
+- sigma = 0.3 -> +/- 7%
+- sigma = 3 -> +/- 45%
+- sigma = 10 -> +/- 49.99%
+:::
+
+---
+
+## Stan code for a simple multilevel logistic model (non-verbal model){.small}
+
+::: columns
+::: {.column width="50%"}
+
+```{stan, output.var="simple_logistic",file=here('stan/logistic.stan'), eval=FALSE, echo=TRUE}
+```
+
+:::
+
+::: {.column width="50%"}
+
+### Centered parameterization
+
+- $S_i \sim \mathcal{B}_{logit}(N_i, z_i)$
+
+- $z_i \sim \mathcal{N}(\mu, \sigma)$
+
+- $\sigma \sim \mathrm{N}(0, 1)$
+
+- $\mu \sim \mathcal{N}(0, 5)$
+
+###  Non-Centered parameterization
+
+- $z_i = \mu + \sigma \cdot \tilde{z_i}$
+
+- $\tilde{z_i} \sim \mathcal{N}(0, 1)$
+:::
+:::
+
+---
+
+## Multilevel models yield better estimates
+
+::: columns
+::: {.column width="40%"}
+
+```{r}
+dummy_simple_re <- tar_read(dummy_simple_re)
+dummy_simple_re |>
+  mutate(p_bayes = round(p_bayes, 2)) |>
+  knitr::kable(format = "html") |>
+  kable_material(c("striped", "hover"), full_width = FALSE, font_size = 30)
+```
+:::
+
+::: {.column width="50%"}
+
+```{r, fig.height=7}
+ggplot(dummy_simple_re, aes(x = p_true)) +
+  # geom_point(aes(y = p_like), size = 12, pch = 21) +
+  geom_jitter(aes(y = p_like), size = 12, pch = 21, width = 0.002) +
+  geom_jitter(aes(y = p_bayes), size = 12, pch = 16, width = 0.002) +
+  annotate(geom = "text", x = 0.34, y = 0.38, label = "1:1", size = 10, angle = 18) +
+  geom_abline(slope = 1, intercept = 0, lty = 2) +
+  xlab("True survival rate") +
+  ylab("Estimated survival rate")
+```
+
+
+:::
+:::
+
+::: incremental
+- Closed symbols (`p_bayes`{.small}) came closer to the 1:1 line.
+
+- This model uses a **prior** knowledge that species responses are some how similar to compensate the small data.
+:::
+
+
+::: notes
+- less influenced by overfitting for each species
+
+- to understand prior, we need to understand Bayes's theorem a bit more
+:::
+
+---
+
+## MLE and multilevel models
+
+- We can do MLE for this kind of simple models.
+
+```{r, echo=TRUE}
+fit <- lme4::glmer(
+   cbind(suv, n - suv) ~  (1 | sp),
+   data = dummy_simple, family = binomial)
+
+logistic <- function(z) 1 / (1 + exp(-z))
+
+logistic(coef(fit)$sp)
+```
+
+---
+
+## MLE vs. Bayesian estimation (multilevel models)
+
+### MLE (e.g., `lme4`{.small})
+
+$L(\mu, \sigma) = \prod_i \int_{-\infty}^{\infty} \mathcal{B}(S_i \mid N_i, p_i) \times \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) dp_i$
+
+- Analytically find $\mu$ and $\sigma$ to maximize $L$
+
+- An analytical solution is often not available (this example is easy though)
+
+### Bayesian estimation
+
+$P(\mu, \sigma \mid S_i, N_i) \propto \prod_i \mathcal{B}(S_i \mid N_i, p_i) \times \prod_i \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) \times \\ \mathcal{N}(\mu \mid 0, 5) \times  \mathcal{N}(\sigma \mid 0, 1)$
+
+- Numerically find $\mu$ and $\sigma$ to maximize $P$ (aka MCMC)
+
+- MCMC works even if an analytical solution is not available
+
+- (Bayes's theorem supports the use of MCMC)
+
+
+::: notes
+posterior distribution is proportional to the likelihood times the prior
+:::
+
+
+# Conditional Probability and Bayes's Theorem
+
+## Conditional Probability and Bayes's Theorem
+
+$$
+P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
+$$
+
+- Conditional probability
+
+- Bayes's Theorem
+
+- Forward / inverse problems
+
+- Bayes revisit
+
+---
+
+## Probability
+
+::: columns
+::: {.column width="50%"}
+
+```{r}
+ggplot() +
+  ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = 2), size = 1.5) +
+  ggtitle("U") +
+  theme_void() +
+  annotate("text", x = 0, y = 0, label = "A", size = 10) +
+  theme(
+      title = element_text(size = 30),
+      panel.border = element_rect(colour = "black", size = 2),
+      legend.position = "none"
+    )
+```
+:::
+::: {.column width="50%"}
+
+Probility of A:
+
+$$
+P(A) = \frac{A}{U}
+$$
+
+e.g., probability of rolling a dice and getting an odd number is 3/6 = 1/2
+
+:::
+:::
+
+
+---
+
+## Conditional Probability
+
+::: columns
+
+::: {.column width="50%"}
+
+```{r, eval=FALSE}
+ggplot() +
+  ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = 2), size = 1.5) +
+  ggtitle("U") +
+  theme_void() +
+  theme(
+    panel.border = element_rect(colour = "black")
+  )
+```
+
+```{r}
+df.venn <- data.frame(x = c(-1, 1),
+                      y = c(0, 0),
+                      labels = c("A", "B"),
+                      stringsAsFactors = FALSE)
+
+yvals <- seq(-sqrt(1.25), sqrt(1.25), 0.01)
+xvals <- sqrt(2.25 - yvals^2) - 1
+yvals <- c(yvals, rev(yvals))
+xvals <- c(xvals, -xvals)
+combo <- data.frame(x = xvals, y = yvals)
+
+ggplot2::ggplot(data = df.venn) +
+    ggforce::geom_circle(
+        ggplot2::aes_string(x0 = "x", y0 = "y", r = 1.5, fill = "labels"),
+        alpha = 0,
+        size = 1.5
+ #       colour = 'darkgray'
+    ) +
+    ggtitle("U") +
+    ggplot2::geom_polygon(data = combo, aes(x = x, y = y),
+      fill = "blue", alpha = 0.6) +
+    ggplot2::coord_fixed() +
+    ggplot2::theme_void() +
+    ggplot2::scale_fill_manual(values = c("gray50", "gray50")) +
+    annotate("text", x = 0, y = 0, label = "A ∩ B", size = 10) +
+    annotate("text", x = -1, y = 0, label = "A", size = 10) +
+    annotate("text", x = 1, y = 0, label = "B", size = 10) +
+    theme(
+      title = element_text(size = 30),
+      panel.border = element_rect(colour = "black", size = 2),
+      legend.position = "none"
+    )
+
+```
+
+:::
+
+::: {.column width="50%"}
+
+Probility of A ocurring given B has already occured:
+
+$$
+P(A \mid B) = \frac{A \cap B}{A} \\
+= \frac{(A \cap B)/U}{A/U} \\
+= \frac{P(A \cap B)}{P(A)}
+$$
+
+
+e.g.,P(Cough) = 5% and P(Cough | Sick) = 75%.
+
+:::
+:::
+
+::: notes
+- probablity A occurs given B
+- vertical bar = given
+- Conditional probablity that someone is coughing is higher than the probability that someone is coughing in general.
+:::
+
+---
+
+##  Bayes's Theorem
+
+$$
+P(B \mid A) = \frac{P(A \cap B)}{P(A)}
+$$
+
+$$
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
+$$
+
+$$
+P(A \mid B) \times P(B) =  P(B \mid A) \times P(A)
+$$
+
+
+::: box
+$$
+P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
+$$
+:::
+
+::: large
+Why is this useful?
+:::
+
+---
+
+## Forward / inverse problems
+
+::: columns
+::: {.column width="50%"}
+
+- X: 3 red balls, 5 white balls
+
+- Y: 1 red balls, 3 white balls
+
+- Randomly choose a bag X or Y
+
+- P(A): Probability of choosing X
+
+- P(B): Probability of drawing a red ball
+
+:::
+
+::: {.column width="50%"}
+
+::: incremental
+$P(A)$, $P(B \mid A)$, $P(B)$, $P(A \cap B)$ and $P(A \mid B)$ .
+
+- $P(A) = 1/2$
+
+- $P(B \mid A) = 3/8$
+
+- $P(B)$ = 1/2 $\times$ 3/8 + 1/2 $\times$ 1/4 = 5 /16
+
+- $P(A \cap B)$ = 1/2 $\times$ 3/8 = 3/16
+
+- $P(A \mid B)$ = $P(A \cap B) / P(B)$ = (3/16) / (5/16) = 3/5
+:::
+:::
+:::
+
+::: notes
+In Japan, we are always drawing colorud balls during probablity problems.
+:::
+
+## Forward / inverse problems
+
+::: incremental
+- $P(A)$: Probability of choosing X
+
+- $P(B)$: Probability of drawing a red ball
+
+- $P(A \cap B)$: Probability of choosing X and drawing a red ball
+
+- $P(B \mid A)$: Probability of drawing a red ball when you chose X
+
+- $P(A \mid B)$: Probability that you atually chose X, when you got a red ball
+  - When you got a red ball, which bag did you choose?
+  - Inverse problem
+:::
+
+---
+
+::: footer
+https://www.probabilisticworld.com/inverse-problem-bayes-theorem/#The_forward_and_the_inverse_problems
+:::
+
+![](images/forward-inverse-problem.png)
+
+---
+
+##  Bayes revisited
+
+$$
+P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
+$$
+
+::: incremental
+- Right: forward (something you can understand)
+
+- Left: inverse (something hard to understand)
+
+- **Inverse problems can be translated into forward problems**
+:::
+
+---
+
+##  Bayes revisited
+
+$$
+P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Parameter}) \times P(\mathrm{Parameter})}{P(\mathrm{Data})}
+$$
+
+::: small
+::: incremental
+- $P(\mathrm{Parameter} \mid \mathrm{Data})$
+
+  - When you got your data, what were the parameters behind the data (e.g., coefficients of regressoins)?
+
+- $P(\mathrm{Data} \mid \mathrm{Parameter})$
+
+  - When you know your parameters, what is the probability of getting your data? (i.e., likelihood)
+
+- $P(\mathrm{Parameter})$
+
+  - Probaility to get your parameters (i.e., prior)
+
+- $P(\mathrm{Data})$
+
+  - Independent with parameters (i.e., constant)
+:::
+:::
+
+---
+
+##  Bayes revisited
+
+$$
+P(\mathrm{Parameter} \mid \mathrm{Data}) \propto P(\mathrm{Data} \mid \mathrm{Parameter}) \times P(\mathrm{Parameter})
+$$
+
+- Posterior $\propto$ Likelihood $\times$ Prior
+
+---
+
+## References
+
+- Gelman, A. et al. Bayesian Data Analysis, Third Edition. (Chapman & Hall/CRC, 2013).
+
+- [AIcia Solid Project](https://youtu.be/mX_NpDD7wwg) (in Japanese)
