@@ -513,34 +513,71 @@ P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
 $$
 :::
 
-::: large
-Why is this useful?
+::: fragment
+### Why is this useful?
 :::
 
 ---
 
-## Forward / inverse problems
+<img src="images/fip_1.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_2.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_3.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_4.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_5.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_6.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_7.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_8.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+## Forward and Inverse Problems
+
 
 ::: columns
 ::: {.column width="50%"}
-
+::: incremental
 - X: 3 red balls, 5 white balls
 
 - Y: 1 red balls, 3 white balls
 
 - Randomly choose a bag X or Y
 
-- P(A): Probability of choosing X
+- $P(A)$: [Probability of choosing X]{.blue}
 
-- P(B): Probability of drawing a red ball
+- $P(B)$: [Probability of drawing a red ball]{.blue}
 
+- $P(A \cap B)$: [Probability of choosing X and drawing a red ball]{.blue}
+
+- $P(B \mid A)$: [Probability of drawing a red ball when you chose X]{.blue}
+
+- $P(A \mid B)$: [Probability that you atually chose X, when you got a red ball]{.orange}
+:::
 :::
 
 ::: {.column width="50%"}
 
 ::: incremental
-$P(A)$, $P(B \mid A)$, $P(B)$, $P(A \cap B)$ and $P(A \mid B)$ .
-
 - $P(A) = 1/2$
 
 - $P(B \mid A) = 3/8$
@@ -555,32 +592,10 @@ $P(A)$, $P(B \mid A)$, $P(B)$, $P(A \cap B)$ and $P(A \mid B)$ .
 :::
 
 ::: notes
-In Japan, we are always drawing colorud balls during probablity problems.
+- Best example seems to be bags and balls
+
+- When you got a red ball, which bag did you choose?
 :::
-
-## Forward / inverse problems
-
-::: incremental
-- $P(A)$: Probability of choosing X
-
-- $P(B)$: Probability of drawing a red ball
-
-- $P(A \cap B)$: Probability of choosing X and drawing a red ball
-
-- $P(B \mid A)$: Probability of drawing a red ball when you chose X
-
-- $P(A \mid B)$: Probability that you atually chose X, when you got a red ball
-  - When you got a red ball, which bag did you choose?
-  - Inverse problem
-:::
-
----
-
-::: footer
-https://www.probabilisticworld.com/inverse-problem-bayes-theorem/#The_forward_and_the_inverse_problems
-:::
-
-![](images/forward-inverse-problem.png)
 
 ---
 
@@ -614,11 +629,11 @@ $$
 
 - $P(\mathrm{Data} \mid \mathrm{Parameter})$
 
-  - When you know your parameters, what is the probability of getting your data? (i.e., likelihood)
+  - When you know your parameters, what is the probability of getting your data? (i.e., **likelihood**)
 
 - $P(\mathrm{Parameter})$
 
-  - Probaility to get your parameters (i.e., prior)
+  - Probaility to get your parameters (i.e., **prior**)
 
 - $P(\mathrm{Data})$
 
