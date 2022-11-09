@@ -119,6 +119,7 @@ tibble(x, y) |>
     axis.title   = element_text(size = 32),
     axis.text    = element_text(size = 28))
 ```
+
 ::: small
 $f(x \mid \mu, \sigma) = \frac{1}{\sqrt{2\pi\sigma^2}}\mathrm{exp} \bigl[{-\frac{1}{2}\bigl\{\frac{x-\mu}{\sigma}}\bigr\}^2\bigr]$
 :::
@@ -185,13 +186,33 @@ dnorm(-1.5, mean = 2, sd = 1, log = TRUE) + dnorm(0, mean = 2, sd = 1, log = TRU
 
 ---
 
+## Maximum Likelihood Estimation
+
+- 2 survivors out of 5 seedlings: What is the survival probability of a seedling?
+
+::: incremental
+- $p$: survival rates, $1-p$: mortality rate
+
+- $L = {}_5C_2 p^2(1-p)^3$
+
+- $\mathrm{ln}L = \mathrm{ln}{}_5C_2 2\mathrm{ln}p + 3\mathrm{ln}(1-p)$
+
+- $\frac{d\mathrm{ln}L}{dt} = 0$
+
+- $\frac{2}{p} - \frac{3}{1-p} = 0$
+
+- $p = \frac{2}{5}$
+:::
+
+---
+
 ## Outline
 
 - Multilevel Model
 
 - Theory
 
-- Prior
+- Multilevel Model Revisited
 
 # Multilevel Models
 
@@ -203,7 +224,10 @@ dnorm(-1.5, mean = 2, sd = 1, log = TRUE) + dnorm(0, mean = 2, sd = 1, log = TRU
 :::
 
 ::: {.column width="60%"}
-*A seedling carpet dominated by Dipteryx oleifera (almendro) in the forest understory of Barro Colorado Island, Panama. Seedlings here have a lower probability of surviving when surrounded by neighbors of their own species. However, rare species suffer more from the presence of like neighbors than do common species, suggesting a mechanism that shapes species abundances in diverse tropical forest communities.*
+
+"...rare species suffered more from the presence of conspecific neighbors than common species did, suggesting that conspecific density dependence shapes species abundances in diverse communities."
+
+\-                    Comita et al. 2010 \-
 :::
 :::
 
@@ -275,7 +299,23 @@ p1 + p2 + p3
 ```
 ---
 
-## Multilevel model (non-verbal model)
+
+## Multilevel model (non-verbal fake model)
+
+```{r, echo=TRUE, eval=FALSE}
+fit <- lme4::glmer(
+   cbind(suv, n - suv) ~  (1 | sp),
+   data = dummy_simple, family = binomial)
+```
+
+::: incremental
+
+- Not that simple
+:::
+
+---
+
+## Multilevel model (non-verbal model) `r emo::ji("vomit")`
 
 ::: footer
 Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010).
@@ -291,25 +331,360 @@ Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P
 
 ::: {.column width=50%}
 ::: small
-- $s_{i,j} \sim \mathcal{B}(p_{i, j})$
+- $s_{i,j} \sim \mathcal{B}(p_{i, j})$: [likelihood]{.orange}
 
 - $\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}$
 
 - $\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}$
 
-- $L \sim \mathrm{LkjCholesky}(\eta)$
+- $L \sim \mathrm{LkjCholesky}(\eta)$: [prior (?)]{.blue}
 
-- $z_j \sim \mathcal{N}(0, 1)$
+- $z_j \sim \mathcal{N}(0, 1)$: [prior (?)]{.blue}
 
-- $\tau \sim \mathrm{Cauchy}(0, 2.5)$
+- $\tau \sim \mathrm{Cauchy}(0, 2.5)$: [prior (?)]{.blue}
 
-- $\gamma_k \sim \mathcal{N(0, 2.5)}$
+- $\gamma_k \sim \mathcal{N}(0, 2.5)$: [prior (?)]{.blue}
+
 :::
 :::
 
+:::
+
+# Conditional Probability and Bayes's Theorem
+
+## Conditional Probability and Bayes's Theorem
+
+$$
+P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
+$$
+
+- Conditional probability
+
+- Bayes's Theorem
+
+- Forward / inverse problems
+
+- Bayes revisit
+
+---
+
+## Probability
+
+::: columns
+::: {.column width="50%"}
+
+```{r}
+ggplot() +
+  ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = 2), size = 1.5) +
+  ggtitle("U") +
+  theme_void() +
+  annotate("text", x = 0, y = 0, label = "A", size = 10) +
+  theme(
+      title = element_text(size = 30),
+      panel.border = element_rect(colour = "black", size = 2),
+      legend.position = "none"
+    )
+```
+:::
+::: {.column width="50%"}
+
+Probility of A:
+
+$$
+P(A) = \frac{A}{U}
+$$
+
+e.g., probability of rolling a dice and getting an odd number is 3/6 = 1/2
+
+:::
+:::
+
+
+---
+
+## Conditional Probability
+
+::: columns
+
+::: {.column width="50%"}
+
+```{r, eval=FALSE}
+ggplot() +
+  ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = 2), size = 1.5) +
+  ggtitle("U") +
+  theme_void() +
+  theme(
+    panel.border = element_rect(colour = "black")
+  )
+```
+
+```{r}
+a <- 1
+df.venn <- data.frame(x = c(-a, a),
+                      y = c(0, 0),
+                      labels = c("A", "B"),
+                      stringsAsFactors = FALSE)
+
+radius <- 1.5
+
+xvals <- seq(0, 2 * a - radius, 0.01)
+yvals <- sqrt(radius^2 - (xvals + a)^2)
+xvals <- c(xvals, rev(xvals))
+yvals <- c(yvals, -rev(yvals))
+xvals <- c(xvals, -xvals)
+yvals <- c(yvals, -yvals)
+combo <- data.frame(x = xvals, y = yvals)
+
+xvals <- seq(a - radius, a  + radius, 0.01)
+yvals <- sqrt(radius^2 - (xvals - a)^2)
+xvals <- c(xvals, rev(xvals))
+yvals <- c(yvals, -yvals)
+combo2 <- data.frame(x = xvals, y = yvals)
+
+ggplot2::ggplot(data = df.venn) +
+    ggforce::geom_circle(
+        ggplot2::aes_string(x0 = "x", y0 = "y", r = radius, fill = "labels"),
+        alpha = 0,
+        size = 1.5
+#       colour = 'darkgray'
+    ) +
+    ggtitle("U") +
+    ggplot2::geom_polygon(data = combo, aes(x = x, y = y),
+      fill = "blue", alpha = 0.6) +
+    ggplot2::geom_polygon(data = combo2, aes(x = x, y = y),
+      fill = "blue", alpha = 0.3) +
+    ggplot2::coord_fixed() +
+    ggplot2::theme_void() +
+    ggplot2::scale_fill_manual(values = c("gray50", "gray50")) +
+    annotate("text", x = 0, y = 0, label = "A ∩ B", size = 10) +
+    annotate("text", x = -1, y = 0, label = "A", size = 10) +
+    annotate("text", x = 1, y = 0, label = "B", size = 10) +
+    theme(
+      title = element_text(size = 30),
+      panel.border = element_rect(colour = "black", size = 2),
+      legend.position = "none"
+    )
+
+```
+
+:::
+
+::: {.column width="50%"}
+
+Probility of A ocurring given B has already occured:
+
+$$
+P(A \mid B) = \frac{A \cap B}{B} \\
+= \frac{(A \cap B)/U}{B/U} \\
+= \frac{P(A \cap B)}{P(B)}
+$$
+
+e.g.,P(Cough) = 5% and P(Cough | Sick) = 75%.
+
+:::
+:::
+
+::: notes
+- probablity A occurs given B
+- vertical bar = given
+- Conditional probablity that someone is coughing is higher than the probability that someone is coughing in general.
 :::
 
 ---
+
+##  Bayes's Theorem
+
+$$
+P(B \mid A) = \frac{P(A \cap B)}{P(A)}
+$$
+
+$$
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
+$$
+
+$$
+P(A \mid B) \times P(B) =  P(B \mid A) \times P(A)
+$$
+
+
+::: box
+$$
+P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
+$$
+:::
+
+::: large
+Why is this useful?
+:::
+
+---
+
+## Forward / inverse problems
+
+::: columns
+::: {.column width="50%"}
+
+- X: 3 red balls, 5 white balls
+
+- Y: 1 red balls, 3 white balls
+
+- Randomly choose a bag X or Y
+
+- P(A): Probability of choosing X
+
+- P(B): Probability of drawing a red ball
+
+:::
+
+::: {.column width="50%"}
+
+::: incremental
+$P(A)$, $P(B \mid A)$, $P(B)$, $P(A \cap B)$ and $P(A \mid B)$ .
+
+- $P(A) = 1/2$
+
+- $P(B \mid A) = 3/8$
+
+- $P(B)$ = 1/2 $\times$ 3/8 + 1/2 $\times$ 1/4 = 5 /16
+
+- $P(A \cap B)$ = 1/2 $\times$ 3/8 = 3/16
+
+- $P(A \mid B)$ = $P(A \cap B) / P(B)$ = (3/16) / (5/16) = 3/5
+:::
+:::
+:::
+
+::: notes
+In Japan, we are always drawing colorud balls during probablity problems.
+:::
+
+## Forward / inverse problems
+
+::: incremental
+- $P(A)$: Probability of choosing X
+
+- $P(B)$: Probability of drawing a red ball
+
+- $P(A \cap B)$: Probability of choosing X and drawing a red ball
+
+- $P(B \mid A)$: Probability of drawing a red ball when you chose X
+
+- $P(A \mid B)$: Probability that you atually chose X, when you got a red ball
+  - When you got a red ball, which bag did you choose?
+  - Inverse problem
+:::
+
+---
+
+::: footer
+https://www.probabilisticworld.com/inverse-problem-bayes-theorem/#The_forward_and_the_inverse_problems
+:::
+
+![](images/forward-inverse-problem.png)
+
+---
+
+##  Bayes revisited
+
+$$
+P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
+$$
+
+::: incremental
+- Right: forward (something you can understand)
+
+- Left: inverse (something hard to understand)
+
+- **Inverse problems can be translated into forward problems**
+:::
+
+---
+
+##  Bayes revisited
+
+$$
+P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Parameter}) \times P(\mathrm{Parameter})}{P(\mathrm{Data})}
+$$
+
+::: small
+::: incremental
+- $P(\mathrm{Parameter} \mid \mathrm{Data})$
+
+  - When you got your data, what were the parameters behind the data (e.g., coefficients of regressoins)?
+
+- $P(\mathrm{Data} \mid \mathrm{Parameter})$
+
+  - When you know your parameters, what is the probability of getting your data? (i.e., likelihood)
+
+- $P(\mathrm{Parameter})$
+
+  - Probaility to get your parameters (i.e., prior)
+
+- $P(\mathrm{Data})$
+
+  - Independent with parameters (i.e., constant)
+:::
+:::
+
+---
+
+##  Bayes revisited
+
+$$
+P(\mathrm{Parameter} \mid \mathrm{Data}) \propto P(\mathrm{Data} \mid \mathrm{Parameter}) \times P(\mathrm{Parameter})
+$$
+
+- Posterior $\propto$ Likelihood $\times$ Prior
+
+---
+
+# Prior
+
+## Prior (coins)
+
+- A: 2 head out of 3 tosses
+- B: 60 heads out of 100 tosses
+
+::: columns
+::: {.column width="50%"}
+
+- $L = {}_3C_2 p^2 (1-p)^1$
+  - $3 \cdot 2p$
+
+- $L = {}_{60}C_{40}p^{60} (1-p)^{40}$
+
+
+
+:::
+
+::: {.column width="50%"}
+:::
+
+:::
+
+##  prior
+
+```{r}
+my_prior <- function(p) p^50 * (1 - p)^ 50
+my_like <- function(p) p^2 * (1 - p)^1
+x <- seq(0, 1, length = 100)
+y <- my_prior(x)
+y2 <- my_like(x)
+y3 <- y * y2
+
+
+tibble(x, prior = y * 10^29.5, likelihood = y2, posterior = y3 * 10^30.5) %>%
+  ggplot(aes(x, prior, color = "prior")) +
+  geom_line() +
+  geom_line(aes(x, likelihood, color = "likelihood")) +
+  geom_line(aes(x, posterior, color = "posterior")) +
+  scale_color_manual(values = c("red", "blue", "green")) +
+  theme(legend.position = "none")
+```
+
+---
+
+# Multilevel model
 
 ## Baseball statistics
 
@@ -609,19 +984,19 @@ p3
 
 ### Centered parameterization
 
-- $S_i \sim \mathcal{B}_{logit}(N_i, z_i)$
+- $S_i \sim \mathcal{B}_{logit}(N_i, z_i)$: likelihood
 
-- $z_i \sim \mathcal{N}(\mu, \sigma)$
+- $z_i \sim \mathcal{N}(\mu, \sigma)$ : prior (?)
 
-- $\sigma \sim \mathrm{N}(0, 1)$
+- $\sigma \sim \mathrm{N}(0, 1)$: prior (?)
 
-- $\mu \sim \mathcal{N}(0, 5)$
+- $\mu \sim \mathcal{N}(0, 5)$: prior (?)
 
 ###  Non-Centered parameterization
 
 - $z_i = \mu + \sigma \cdot \tilde{z_i}$
 
-- $\tilde{z_i} \sim \mathcal{N}(0, 1)$
+- $\tilde{z_i} \sim \mathcal{N}(0, 1)$: prior (?)
 :::
 :::
 
@@ -714,282 +1089,6 @@ $P(\mu, \sigma \mid S_i, N_i) \propto \prod_i \mathcal{B}(S_i \mid N_i, p_i) \ti
 posterior distribution is proportional to the likelihood times the prior
 :::
 
-
-# Conditional Probability and Bayes's Theorem
-
-## Conditional Probability and Bayes's Theorem
-
-$$
-P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
-$$
-
-- Conditional probability
-
-- Bayes's Theorem
-
-- Forward / inverse problems
-
-- Bayes revisit
-
----
-
-## Probability
-
-::: columns
-::: {.column width="50%"}
-
-```{r}
-ggplot() +
-  ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = 2), size = 1.5) +
-  ggtitle("U") +
-  theme_void() +
-  annotate("text", x = 0, y = 0, label = "A", size = 10) +
-  theme(
-      title = element_text(size = 30),
-      panel.border = element_rect(colour = "black", size = 2),
-      legend.position = "none"
-    )
-```
-:::
-::: {.column width="50%"}
-
-Probility of A:
-
-$$
-P(A) = \frac{A}{U}
-$$
-
-e.g., probability of rolling a dice and getting an odd number is 3/6 = 1/2
-
-:::
-:::
-
-
----
-
-## Conditional Probability
-
-::: columns
-
-::: {.column width="50%"}
-
-```{r, eval=FALSE}
-ggplot() +
-  ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = 2), size = 1.5) +
-  ggtitle("U") +
-  theme_void() +
-  theme(
-    panel.border = element_rect(colour = "black")
-  )
-```
-
-```{r}
-df.venn <- data.frame(x = c(-1, 1),
-                      y = c(0, 0),
-                      labels = c("A", "B"),
-                      stringsAsFactors = FALSE)
-
-yvals <- seq(-sqrt(1.25), sqrt(1.25), 0.01)
-xvals <- sqrt(2.25 - yvals^2) - 1
-yvals <- c(yvals, rev(yvals))
-xvals <- c(xvals, -xvals)
-combo <- data.frame(x = xvals, y = yvals)
-
-ggplot2::ggplot(data = df.venn) +
-    ggforce::geom_circle(
-        ggplot2::aes_string(x0 = "x", y0 = "y", r = 1.5, fill = "labels"),
-        alpha = 0,
-        size = 1.5
- #       colour = 'darkgray'
-    ) +
-    ggtitle("U") +
-    ggplot2::geom_polygon(data = combo, aes(x = x, y = y),
-      fill = "blue", alpha = 0.6) +
-    ggplot2::coord_fixed() +
-    ggplot2::theme_void() +
-    ggplot2::scale_fill_manual(values = c("gray50", "gray50")) +
-    annotate("text", x = 0, y = 0, label = "A ∩ B", size = 10) +
-    annotate("text", x = -1, y = 0, label = "A", size = 10) +
-    annotate("text", x = 1, y = 0, label = "B", size = 10) +
-    theme(
-      title = element_text(size = 30),
-      panel.border = element_rect(colour = "black", size = 2),
-      legend.position = "none"
-    )
-
-```
-
-:::
-
-::: {.column width="50%"}
-
-Probility of A ocurring given B has already occured:
-
-$$
-P(A \mid B) = \frac{A \cap B}{A} \\
-= \frac{(A \cap B)/U}{A/U} \\
-= \frac{P(A \cap B)}{P(A)}
-$$
-
-
-e.g.,P(Cough) = 5% and P(Cough | Sick) = 75%.
-
-:::
-:::
-
-::: notes
-- probablity A occurs given B
-- vertical bar = given
-- Conditional probablity that someone is coughing is higher than the probability that someone is coughing in general.
-:::
-
----
-
-##  Bayes's Theorem
-
-$$
-P(B \mid A) = \frac{P(A \cap B)}{P(A)}
-$$
-
-$$
-P(A \mid B) = \frac{P(A \cap B)}{P(B)}
-$$
-
-$$
-P(A \mid B) \times P(B) =  P(B \mid A) \times P(A)
-$$
-
-
-::: box
-$$
-P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
-$$
-:::
-
-::: large
-Why is this useful?
-:::
-
----
-
-## Forward / inverse problems
-
-::: columns
-::: {.column width="50%"}
-
-- X: 3 red balls, 5 white balls
-
-- Y: 1 red balls, 3 white balls
-
-- Randomly choose a bag X or Y
-
-- P(A): Probability of choosing X
-
-- P(B): Probability of drawing a red ball
-
-:::
-
-::: {.column width="50%"}
-
-::: incremental
-$P(A)$, $P(B \mid A)$, $P(B)$, $P(A \cap B)$ and $P(A \mid B)$ .
-
-- $P(A) = 1/2$
-
-- $P(B \mid A) = 3/8$
-
-- $P(B)$ = 1/2 $\times$ 3/8 + 1/2 $\times$ 1/4 = 5 /16
-
-- $P(A \cap B)$ = 1/2 $\times$ 3/8 = 3/16
-
-- $P(A \mid B)$ = $P(A \cap B) / P(B)$ = (3/16) / (5/16) = 3/5
-:::
-:::
-:::
-
-::: notes
-In Japan, we are always drawing colorud balls during probablity problems.
-:::
-
-## Forward / inverse problems
-
-::: incremental
-- $P(A)$: Probability of choosing X
-
-- $P(B)$: Probability of drawing a red ball
-
-- $P(A \cap B)$: Probability of choosing X and drawing a red ball
-
-- $P(B \mid A)$: Probability of drawing a red ball when you chose X
-
-- $P(A \mid B)$: Probability that you atually chose X, when you got a red ball
-  - When you got a red ball, which bag did you choose?
-  - Inverse problem
-:::
-
----
-
-::: footer
-https://www.probabilisticworld.com/inverse-problem-bayes-theorem/#The_forward_and_the_inverse_problems
-:::
-
-![](images/forward-inverse-problem.png)
-
----
-
-##  Bayes revisited
-
-$$
-P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
-$$
-
-::: incremental
-- Right: forward (something you can understand)
-
-- Left: inverse (something hard to understand)
-
-- **Inverse problems can be translated into forward problems**
-:::
-
----
-
-##  Bayes revisited
-
-$$
-P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Parameter}) \times P(\mathrm{Parameter})}{P(\mathrm{Data})}
-$$
-
-::: small
-::: incremental
-- $P(\mathrm{Parameter} \mid \mathrm{Data})$
-
-  - When you got your data, what were the parameters behind the data (e.g., coefficients of regressoins)?
-
-- $P(\mathrm{Data} \mid \mathrm{Parameter})$
-
-  - When you know your parameters, what is the probability of getting your data? (i.e., likelihood)
-
-- $P(\mathrm{Parameter})$
-
-  - Probaility to get your parameters (i.e., prior)
-
-- $P(\mathrm{Data})$
-
-  - Independent with parameters (i.e., constant)
-:::
-:::
-
----
-
-##  Bayes revisited
-
-$$
-P(\mathrm{Parameter} \mid \mathrm{Data}) \propto P(\mathrm{Data} \mid \mathrm{Parameter}) \times P(\mathrm{Parameter})
-$$
-
-- Posterior $\propto$ Likelihood $\times$ Prior
-
----
 
 ## References
 
