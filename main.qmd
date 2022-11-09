@@ -1,5 +1,5 @@
 ---
-pagetitle: "Bayesian estimation and ecology"
+pagetitle: "Bayesian estimation for ecology"
 author: "Masatoshi Katabuchi"
 date: "November 10, 2022"
 host: "XTBG AFEC"
@@ -474,12 +474,14 @@ ggplot2::ggplot(data = df.venn) +
 Probility of A ocurring given B has already occured:
 
 $$
-P(A \mid B) = \frac{A \cap B}{B} \\
-= \frac{(A \cap B)/U}{B/U} \\
+P(A \mid B) = \frac{A \cap B}{B} = \frac{(A \cap B)/U}{B/U} \\
 = \frac{P(A \cap B)}{P(B)}
 $$
 
-e.g.,P(Cough) = 5% and P(Cough | Sick) = 75%.
+e.g.,
+
+- P(Cough) = 5%
+- P(Cough | Sick) = 75%.
 
 :::
 :::
@@ -599,23 +601,9 @@ $$
 
 ---
 
-##  Bayes revisited
-
-$$
-P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
-$$
-
-::: incremental
-- Right: forward (something you can understand)
-
-- Left: inverse (something hard to understand)
-
-- **Inverse problems can be translated into forward problems**
-:::
+<img src="images/bayes_re.png" width="100%" style="display: block; margin: auto;"/>
 
 ---
-
-##  Bayes revisited
 
 $$
 P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Parameter}) \times P(\mathrm{Parameter})}{P(\mathrm{Data})}
@@ -643,13 +631,7 @@ $$
 
 ---
 
-##  Bayes revisited
-
-$$
-P(\mathrm{Parameter} \mid \mathrm{Data}) \propto P(\mathrm{Data} \mid \mathrm{Parameter}) \times P(\mathrm{Parameter})
-$$
-
-- Posterior $\propto$ Likelihood $\times$ Prior
+<img src="images/bayes_re_2.png" width="100%" style="display: block; margin: auto;"/>
 
 ---
 
