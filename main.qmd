@@ -101,7 +101,7 @@ Am I correct?
 
 ---
 
-## Likelihood
+## Likelihood and probability density distribution
 
 ::: columns
 
@@ -112,7 +112,7 @@ y <- dnorm(x, mean = 0, sd = 1)
 tibble(x, y) |>
   ggplot() +
   xlab("x") +
-  ylab("Likelihood") +
+  ylab("Density") +
   ggtitle("N(0, 1)") +
   geom_line(aes(x, y)) +
   theme(
@@ -133,7 +133,7 @@ $f(x \mid \mu, \sigma) = \frac{1}{\sqrt{2\pi\sigma^2}}\mathrm{exp} \bigl[{-\frac
 :::
 
 ::: fragment
-- Likelihood: $L = P(x = 1.96 \mid \mu = 0, \sigma = 1)$
+- $P(x = 1.96 \mid \mu = 0, \sigma = 1)$
 :::
 
 ::: fragment
@@ -155,10 +155,10 @@ dnorm(1.96, mean = 0, sd = 1)
 ## Likelihood
 
 ::: incremental
-
-- When you data is x = {-1.5, 0, 1.5} and your model is $x \sim \mathcal{N}(0, 1)$, what is the probability of observing y?
+- When your data is x = {-1.5, 0, 1.5} and your model is $x \sim \mathcal{N}(0, 1)$, what is the probability of observing x?
 - $L = P(-1.5 \mid 0, 1) \times P(0 \mid 0, 1) \times P(1.5 \mid 0, 1)$
 - $\mathrm{log}L = \mathrm{log}P(-1.5 \mid 0, 1) + \mathrm{log}P(0 \mid 0, 1) +  \mathrm{log}P(1.5 \mid 0, 1)$
+:::
 
 ::: fragment
 ```{r, echo=TRUE}
@@ -166,23 +166,33 @@ dnorm(-1.5, mean = 0, sd = 1, log = TRUE) + dnorm(0, mean = 0, sd = 1, log = TRU
 ```
 :::
 
-- What if your model is $x \sim \mathcal{N}(2, 1)$?
-
 ::: fragment
-```{r, echo=TRUE}
-dnorm(-1.5, mean = 2, sd = 1, log = TRUE) + dnorm(0, mean = 2, sd = 1, log = TRUE) + dnorm(1.5, mean = 2, sd = 1, log = TRUE)
+
+```{r}
+like_fun <- function(mu) {
+  dnorm(-1.5, mean = mu, sd = 1, log = TRUE) + dnorm(0, mean = mu, sd = 1, log = TRUE) + dnorm(1.5, mean = mu, sd = 1, log = TRUE)
+}
+
+x <- seq(-5, 5, length.out = 100)
+y <- like_fun(x)
+tibble(x, y) |>
+  ggplot() +
+  xlab("mu") +
+  ylab("log L") +
+  ggtitle("N(0, 1)") +
+  geom_line(aes(x, y)) +
+  theme(
+    axis.title   = element_text(size = 32),
+    axis.text    = element_text(size = 28))
+
 ```
 :::
 
+## Likelihood
+
 - Because we usually don't know the true parameters ($\mu$ and $\sigma$), we need to find the parameters that maximize the likelihood function (**Maximum Likelihood Estimation**).
 
-  - e.g., for a liner model $y = ax + b$, we estimate $a$, $b$, and $\sigma$ that maximize the following likelihood function: $P(y \mid ax + b, \sigma)$
-
-:::
-
-::: notes
-- to find the maximum point of the function, we differentiate the function, and solve the derivative function
-:::
+  - e.g., for a liner model $y = ax + b$, we usually assume that $y \sim \mathcal{N}(\mu = ax + b, \sigma^2)$, and we want to find the parameters $a$, $b$, and $\sigma$ that maximize the likelihood function: $P(y \mid ax + b, \sigma)$
 
 ---
 
@@ -193,7 +203,7 @@ dnorm(-1.5, mean = 2, sd = 1, log = TRUE) + dnorm(0, mean = 2, sd = 1, log = TRU
 ::: incremental
 - $p$: survival rates, $1-p$: mortality rate
 
-- $L = {}_5C_2 p^2(1-p)^3$
+- $L = {}_5C_2 p^2(1-p)^3$ (Binomial distribution)
 
 - $\mathrm{ln}L = \mathrm{ln}{}_5C_2 2\mathrm{ln}p + 3\mathrm{ln}(1-p)$
 
@@ -639,27 +649,60 @@ $$
 
 ## Prior (coins)
 
-- A: 2 head out of 3 tosses
-- B: 60 heads out of 100 tosses
+- A: 2 head out of 3 tosses -> 2/3 = 0.666
+- B: 60 heads out of 100 tosses -> 60/100 = 0.6
 
 ::: columns
 ::: {.column width="50%"}
 
-- $L = {}_3C_2 p^2 (1-p)^1$
-  - $3 \cdot 2p$
+- $L_A = {}_3C_2 p^2 (1-p)^1$
 
-- $L = {}_{60}C_{40}p^{60} (1-p)^{40}$
+- $L_B = {}_{100}C_{60} p^{60} (1-p)^{40}$
 
-
+- $prior = p^{50} (1-p)^{50}$
+  - Beta distribution with mean 0.5 and small variance
 
 :::
 
 ::: {.column width="50%"}
+```{r}
+my_prior <- function(p) p^50 * (1 - p)^ 50
+x <- seq(0, 1, length = 100)
+y <- my_prior(x)
+
+tibble(x, prior = y * 10^29.5) %>%
+  ggplot(aes(x, prior, color = "prior")) +
+  geom_line() +
+#  scale_color_manual(values = c("red", "blue", "green")) +
+  theme(legend.position = "none")
+
+
+```
+
 :::
+:::
+
+---
+
+## Prior (coins)
+
+::: incremental
+
+- $Post_A \propto p^2 (1-p)^1 \times p^{50} (1-p)^{50}$
+
+  - $Post_A \propto p^{52} (1-p)^{51}$
+
+  -  p = 52/103 = 0.5048
+
+- $Post_B \propto p^{60} (1-p)^{40} \times p^{50} (1-p)^{50}$
+
+  - $Post_B \propto p^{100} (1-p)^{90}$
+
+  - p = 100/190 = 0.526
 
 :::
 
-##  prior
+## Prior
 
 ```{r}
 my_prior <- function(p) p^50 * (1 - p)^ 50
@@ -668,7 +711,6 @@ x <- seq(0, 1, length = 100)
 y <- my_prior(x)
 y2 <- my_like(x)
 y3 <- y * y2
-
 
 tibble(x, prior = y * 10^29.5, likelihood = y2, posterior = y3 * 10^30.5) %>%
   ggplot(aes(x, prior, color = "prior")) +
@@ -983,11 +1025,11 @@ p3
 
 - $S_i \sim \mathcal{B}_{logit}(N_i, z_i)$: likelihood
 
-- $z_i \sim \mathcal{N}(\mu, \sigma)$ : prior (?)
+- $z_i \sim \mathcal{N}(\mu, \sigma)$ : prior
 
-- $\sigma \sim \mathrm{N}(0, 1)$: prior (?)
+- $\sigma \sim \mathrm{N}(0, 1)$: prior
 
-- $\mu \sim \mathcal{N}(0, 5)$: prior (?)
+- $\mu \sim \mathcal{N}(0, 5)$: prior
 
 ###  Non-Centered parameterization
 
@@ -1091,4 +1133,4 @@ posterior distribution is proportional to the likelihood times the prior
 
 - Gelman, A. et al. Bayesian Data Analysis, Third Edition. (Chapman & Hall/CRC, 2013).
 
-- [AIcia Solid Project](https://youtu.be/mX_NpDD7wwg) (in Japanese)
+- [AIcia Solid Project](https://youtu.be/mX_NpDD7wwg) (in Japanese and Math)
