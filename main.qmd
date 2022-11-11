@@ -71,9 +71,9 @@ hoge
 ::: large
 - We Learn
 
-  - Why multilevel models are important
-
   - Why Bayesian estimation is useful
+
+  - Why multilevel models are important
 
 - We Do Not Learn
 
@@ -84,6 +84,7 @@ hoge
 ::: notes
 - coding exercises are not the focus of this workshop
 - it will take a couple of days
+- idea of bayesian in ecology
 :::
 
 
@@ -106,6 +107,7 @@ Am I correct?
 ::: columns
 
 ::: {.column width=40%}
+
 ```{r, fig.height=7}
 x <- seq(-5, 5, length.out = 100)
 y <- dnorm(x, mean = 0, sd = 1)
@@ -154,10 +156,13 @@ dnorm(1.96, mean = 0, sd = 1)
 
 ## Likelihood
 
+When your data is x = {-1.5, 0, 1.5} and your model is $x \sim \mathcal{N}(0, 1)$, what is the probability of observing x?
+
+::: small
 ::: incremental
-- When your data is x = {-1.5, 0, 1.5} and your model is $x \sim \mathcal{N}(0, 1)$, what is the probability of observing x?
 - $L = P(-1.5 \mid 0, 1) \times P(0 \mid 0, 1) \times P(1.5 \mid 0, 1)$
 - $\mathrm{log}L = \mathrm{log}P(-1.5 \mid 0, 1) + \mathrm{log}P(0 \mid 0, 1) +  \mathrm{log}P(1.5 \mid 0, 1)$
+:::
 :::
 
 ::: fragment
@@ -168,7 +173,7 @@ dnorm(-1.5, mean = 0, sd = 1, log = TRUE) + dnorm(0, mean = 0, sd = 1, log = TRU
 
 ::: fragment
 
-```{r}
+```{r, fig.height=4}
 like_fun <- function(mu) {
   dnorm(-1.5, mean = mu, sd = 1, log = TRUE) + dnorm(0, mean = mu, sd = 1, log = TRUE) + dnorm(1.5, mean = mu, sd = 1, log = TRUE)
 }
@@ -188,6 +193,7 @@ tibble(x, y) |>
 ```
 :::
 
+
 ## Likelihood
 
 - Because we usually don't know the true parameters ($\mu$ and $\sigma$), we need to find the parameters that maximize the likelihood function (**Maximum Likelihood Estimation**).
@@ -198,8 +204,15 @@ tibble(x, y) |>
 
 ## Maximum Likelihood Estimation
 
-- 2 survivors out of 5 seedlings: What is the survival probability of a seedling?
+- 2 survivors out of 5 seedlings: What is the survival probability of seedlings?
 
+::: columns
+
+::: {.column width=40%}
+![](images/seedling.png)
+:::
+
+::: {.column width=60%}
 ::: incremental
 - $p$: survival rates, $1-p$: mortality rate
 
@@ -207,11 +220,11 @@ tibble(x, y) |>
 
 - $\mathrm{ln}L = \mathrm{ln}{}_5C_2 2\mathrm{ln}p + 3\mathrm{ln}(1-p)$
 
-- $\frac{d\mathrm{ln}L}{dt} = 0$
-
-- $\frac{2}{p} - \frac{3}{1-p} = 0$
+- $\frac{d\mathrm{ln}L}{dt} = \frac{2}{p} - \frac{3}{1-p}  = 0$
 
 - $p = \frac{2}{5}$
+:::
+:::
 :::
 
 ---
@@ -220,7 +233,9 @@ tibble(x, y) |>
 
 - Multilevel Model
 
-- Theory
+- Conditional Probability and Bayes's Theorem
+
+- Prior
 
 - Multilevel Model Revisited
 
@@ -331,7 +346,6 @@ fit <- lme4::glmer(
 Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010).
 :::
 
-
 ::: columns
 
 ::: {.column width=50%}
@@ -343,9 +357,9 @@ Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P
 ::: small
 - $s_{i,j} \sim \mathcal{B}(p_{i, j})$: [likelihood]{.orange}
 
-- $\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}$
+- $\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}$: linear algebra
 
-- $\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}$
+- $\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}$: linear algebra
 
 - $L \sim \mathrm{LkjCholesky}(\eta)$: [prior (?)]{.blue}
 
@@ -643,15 +657,38 @@ $$
 
 <img src="images/bayes_re_2.png" width="100%" style="display: block; margin: auto;"/>
 
----
-
 # Prior
+
+```{r}
+my_prior <- function(p) p^50 * (1 - p)^ 50
+my_like <- function(p) p^2 * (1 - p)^1
+x <- seq(0, 1, length = 100)
+y <- my_prior(x)
+y2 <- my_like(x)
+y3 <- y * y2
+
+tibble(x, Prior = y * 10^29.5, Likelihood = y2, Posterior = y3 * 10^30.5) |>
+  pivot_longer(Prior:Posterior) |>
+  mutate(name = factor(name, levels = c("Posterior", "Likelihood", "Prior"))) |>
+  ggplot(aes(x = x, y = value, color = name)) +
+  geom_line(size = 1.5) +
+  ylab("Probability") +
+  xlab("Parameter") +
+  theme(
+    legend.position = c(0.15, 0.7),
+    legend.text = element_text(size = 28),
+    legend.title = element_blank(),
+    axis.text.y = element_blank()
+    )
+
+```
 
 ## Prior (coins)
 
 - A: 2 head out of 3 tosses -> 2/3 = 0.666
 - B: 60 heads out of 100 tosses -> 60/100 = 0.6
 
+::: fragment
 ::: columns
 ::: {.column width="50%"}
 
@@ -659,7 +696,7 @@ $$
 
 - $L_B = {}_{100}C_{60} p^{60} (1-p)^{40}$
 
-- $prior = p^{50} (1-p)^{50}$
+- $\mathrm{Prior} \propto  p^{50} (1-p)^{50}$
   - Beta distribution with mean 0.5 and small variance
 
 :::
@@ -671,14 +708,16 @@ x <- seq(0, 1, length = 100)
 y <- my_prior(x)
 
 tibble(x, prior = y * 10^29.5) %>%
-  ggplot(aes(x, prior, color = "prior")) +
-  geom_line() +
-#  scale_color_manual(values = c("red", "blue", "green")) +
-  theme(legend.position = "none")
-
+  ggplot(aes(x, prior)) +
+  geom_line(size = 1.5) +
+  theme(
+    legend.position = "none",
+    axis.text = element_text(size = 28),
+    axis.title = element_text(size = 32))
 
 ```
 
+:::
 :::
 :::
 
@@ -686,8 +725,9 @@ tibble(x, prior = y * 10^29.5) %>%
 
 ## Prior (coins)
 
+::: columns
+::: {.column width=50%}
 ::: incremental
-
 - $Post_A \propto p^2 (1-p)^1 \times p^{50} (1-p)^{50}$
 
   - $Post_A \propto p^{52} (1-p)^{51}$
@@ -696,32 +736,75 @@ tibble(x, prior = y * 10^29.5) %>%
 
 - $Post_B \propto p^{60} (1-p)^{40} \times p^{50} (1-p)^{50}$
 
-  - $Post_B \propto p^{100} (1-p)^{90}$
+  - $Post_B \propto p^{110} (1-p)^{90}$
 
-  - p = 100/190 = 0.526
+  - p = 110/200 = 0.55
+:::
+:::
+::: {.column width=50%}
+::: incremental
+- $Post_A \propto p^{52} (1-p)^{51}$
+  - 52 heads out of 103 tosses?
+- $Post_B \propto p^{60} (1-p)^{40} \times p^{50} (1-p)^{50}$
+  - 110 heads out of 200 tosses?
+- **Prior can legally increase your sample number using other information (misleading?)**
+
+:::
+:::
+:::
+
+## Priors and ecology
+
+- Given that *y* = {-3, ..., 3}, *x* = {-3, ..., 3}, and *y = ax + b*, we don't know if there is a correlaion but we can at least guess the parameter *a* should be much smaller than 1000, and probaly some where between -5 and 5.
+
+```{r, fig.height=7, fig.width=18}
+x1 <- seq(-2000, 2000, length.out = 100)
+y1 <- dnorm(x1, mean = 0, sd = 1000)
+p1 <- tibble(x1, y1) |>
+  ggplot() +
+  xlab("a") +
+  ylab("Density") +
+  ggtitle("N(0, 1000): Super-vague") +
+  geom_line(aes(x1, y1)) +
+  ylim(c(0, 0.01)) +
+  # ylim(c(0, 0.16)) +
+  theme(
+    axis.title   = element_text(size = 32),
+    axis.text    = element_text(size = 28))
+
+x2 <- seq(-10, 10, length.out = 100)
+y2 <- dnorm(x2, mean = 0, sd = 2.5)
+p2 <- tibble(x2, y2) |>
+  ggplot() +
+  xlab("a") +
+  ylab("Density") +
+  ggtitle("N(0, 2.5): Weakly-informative") +
+  geom_line(aes(x2, y2)) +
+  theme(
+    axis.title   = element_text(size = 32),
+    axis.text    = element_text(size = 28))
+
+p1 + p2
+```
+
+
+## Priors and ecology
+
+::: incremental
+- $y_i = ax_i + b_j$
+
+  - If the parameter $b_j$ is similar within each group (e.g., species differecne):
+  - Likelihood: $y_i \sim \mathcal{N}(ax_i + b_j, \sigma)$
+  - Prior: $b_j \sim \mathcal{N}(\mu_b, \tau)$
+
+- If the data $y_i$ is similar to the surrounding samples (e.g., spatial autocorraliton):
+  - Likelihood: $y_i \sim \mathcal{N}(\mu + \tilde{r_i}, \sigma)$
+
+  - Prior: $\tilde{r_i} = r_{m, n} \sim \mathcal{N}((r_{m-1, n-1} + r_{m, n-1} + r_{m+1, n-1} \\+ r_{m-1, n} +r_{m+1, n} \\ + r_{m+1, n-1} +r_{m+1, n} + r_{m+1, n+1})/8, \tau)$
 
 :::
 
-## Prior
 
-```{r}
-my_prior <- function(p) p^50 * (1 - p)^ 50
-my_like <- function(p) p^2 * (1 - p)^1
-x <- seq(0, 1, length = 100)
-y <- my_prior(x)
-y2 <- my_like(x)
-y3 <- y * y2
-
-tibble(x, prior = y * 10^29.5, likelihood = y2, posterior = y3 * 10^30.5) %>%
-  ggplot(aes(x, prior, color = "prior")) +
-  geom_line() +
-  geom_line(aes(x, likelihood, color = "likelihood")) +
-  geom_line(aes(x, posterior, color = "posterior")) +
-  scale_color_manual(values = c("red", "blue", "green")) +
-  theme(legend.position = "none")
-```
-
----
 
 # Multilevel model
 
@@ -1131,6 +1214,10 @@ posterior distribution is proportional to the likelihood times the prior
 
 ## References
 
-- Gelman, A. et al. Bayesian Data Analysis, Third Edition. (Chapman & Hall/CRC, 2013).
+- [Gelman, A. et al. Bayesian Data Analysis, Third Edition. (Chapman & Hall/CRC, 2013)](http://www.stat.columbia.edu/~gelman/book/)
+
+- [Stan User's Guide](https://mc-stan.org/docs/stan-users-guide/index.html)
+
+- [Stan Functions Reference](https://mc-stan.org/docs/functions-reference/index.html)
 
 - [AIcia Solid Project](https://youtu.be/mX_NpDD7wwg) (in Japanese and Math)

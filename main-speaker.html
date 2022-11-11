@@ -446,8 +446,8 @@
 <ul>
 <li class="fragment"><p>We Learn</p>
 <ul>
-<li class="fragment"><p>Why multilevel models are important</p></li>
 <li class="fragment"><p>Why Bayesian estimation is useful</p></li>
+<li class="fragment"><p>Why multilevel models are important</p></li>
 </ul></li>
 <li class="fragment"><p>We Do Not Learn</p>
 <ul>
@@ -460,6 +460,7 @@
 <ul>
 <li>coding exercises are not the focus of this workshop</li>
 <li>it will take a couple of days</li>
+<li>idea of bayesian in ecology</li>
 </ul>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -551,12 +552,14 @@
 </section>
 <section id="likelihood-1" class="slide level2">
 <h2>Likelihood</h2>
+<p>When your data is x = {-1.5, 0, 1.5} and your model is <span class="math inline">\(x \sim \mathcal{N}(0, 1)\)</span>, what is the probability of observing x?</p>
+<div class="small">
 <div>
 <ul>
-<li class="fragment">When your data is x = {-1.5, 0, 1.5} and your model is <span class="math inline">\(x \sim \mathcal{N}(0, 1)\)</span>, what is the probability of observing x?</li>
 <li class="fragment"><span class="math inline">\(L = P(-1.5 \mid 0, 1) \times P(0 \mid 0, 1) \times P(1.5 \mid 0, 1)\)</span></li>
 <li class="fragment"><span class="math inline">\(\mathrm{log}L = \mathrm{log}P(-1.5 \mid 0, 1) + \mathrm{log}P(0 \mid 0, 1) + \mathrm{log}P(1.5 \mid 0, 1)\)</span></li>
 </ul>
+</div>
 </div>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
@@ -590,24 +593,30 @@
 <section id="maximum-likelihood-estimation" class="slide level2">
 <h2>Maximum Likelihood Estimation</h2>
 <ul>
-<li>2 survivors out of 5 seedlings: What is the survival probability of a seedling?</li>
+<li>2 survivors out of 5 seedlings: What is the survival probability of seedlings?</li>
 </ul>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><img data-src="images/seedling.png"></p>
+</div><div class="column" style="width:60%;">
 <div>
 <ul>
 <li class="fragment"><p><span class="math inline">\(p\)</span>: survival rates, <span class="math inline">\(1-p\)</span>: mortality rate</p></li>
 <li class="fragment"><p><span class="math inline">\(L = {}_5C_2 p^2(1-p)^3\)</span> (Binomial distribution)</p></li>
 <li class="fragment"><p><span class="math inline">\(\mathrm{ln}L = \mathrm{ln}{}_5C_2 2\mathrm{ln}p + 3\mathrm{ln}(1-p)\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(\frac{d\mathrm{ln}L}{dt} = 0\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(\frac{2}{p} - \frac{3}{1-p} = 0\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(\frac{d\mathrm{ln}L}{dt} = \frac{2}{p} - \frac{3}{1-p} = 0\)</span></p></li>
 <li class="fragment"><p><span class="math inline">\(p = \frac{2}{5}\)</span></p></li>
 </ul>
+</div>
+</div>
 </div>
 </section>
 <section id="outline" class="slide level2">
 <h2>Outline</h2>
 <ul>
 <li><p>Multilevel Model</p></li>
-<li><p>Theory</p></li>
+<li><p>Conditional Probability and Bayes’s Theorem</p></li>
+<li><p>Prior</p></li>
 <li><p>Multilevel Model Revisited</p></li>
 </ul>
 </section></section>
@@ -715,8 +724,8 @@
 <div class="small">
 <ul>
 <li><p><span class="math inline">\(s_{i,j} \sim \mathcal{B}(p_{i, j})\)</span>: <span class="orange">likelihood</span></p></li>
-<li><p><span class="math inline">\(\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}\)</span></p></li>
-<li><p><span class="math inline">\(\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}\)</span></p></li>
+<li><p><span class="math inline">\(\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}\)</span>: linear algebra</p></li>
+<li><p><span class="math inline">\(\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}\)</span>: linear algebra</p></li>
 <li><p><span class="math inline">\(L \sim \mathrm{LkjCholesky}(\eta)\)</span>: <span class="blue">prior (?)</span></p></li>
 <li><p><span class="math inline">\(z_j \sim \mathcal{N}(0, 1)\)</span>: <span class="blue">prior (?)</span></p></li>
 <li><p><span class="math inline">\(\tau \sim \mathrm{Cauchy}(0, 2.5)\)</span>: <span class="blue">prior (?)</span></p></li>
@@ -945,27 +954,25 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <section class="slide level2">
 
 
-<img src="images/bayes_re_2.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
-<section class="slide level2">
-
-</section></section>
+<img src="images/bayes_re_2.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section></section>
 <section>
 <section id="prior" class="title-slide slide level1 center">
 <h1>Prior</h1>
 
-</section>
+<img data-src="figure/unnamed-chunk-11-1.png" width="960" class="r-stretch quarto-figure-center"></section>
 <section id="prior-coins" class="slide level2">
 <h2>Prior (coins)</h2>
 <ul>
 <li>A: 2 head out of 3 tosses -&gt; 2/3 = 0.666</li>
 <li>B: 60 heads out of 100 tosses -&gt; 60/100 = 0.6</li>
 </ul>
+<div class="fragment">
 <div class="columns">
 <div class="column" style="width:50%;">
 <ul>
 <li><p><span class="math inline">\(L_A = {}_3C_2 p^2 (1-p)^1\)</span></p></li>
 <li><p><span class="math inline">\(L_B = {}_{100}C_{60} p^{60} (1-p)^{40}\)</span></p></li>
-<li><p><span class="math inline">\(prior = p^{50} (1-p)^{50}\)</span></p>
+<li><p><span class="math inline">\(\mathrm{Prior} \propto p^{50} (1-p)^{50}\)</span></p>
 <ul>
 <li>Beta distribution with mean 0.5 and small variance</li>
 </ul></li>
@@ -975,8 +982,9 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-11-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-12-1.png" width="960"></p>
 </figure>
+</div>
 </div>
 </div>
 </div>
@@ -985,6 +993,8 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 </section>
 <section id="prior-coins-1" class="slide level2">
 <h2>Prior (coins)</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
 <div>
 <ul>
 <li class="fragment"><p><span class="math inline">\(Post_A \propto p^2 (1-p)^1 \times p^{50} (1-p)^{50}\)</span></p>
@@ -994,18 +1004,52 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 </ul></li>
 <li class="fragment"><p><span class="math inline">\(Post_B \propto p^{60} (1-p)^{40} \times p^{50} (1-p)^{50}\)</span></p>
 <ul>
-<li class="fragment"><p><span class="math inline">\(Post_B \propto p^{100} (1-p)^{90}\)</span></p></li>
-<li class="fragment"><p>p = 100/190 = 0.526</p></li>
+<li class="fragment"><p><span class="math inline">\(Post_B \propto p^{110} (1-p)^{90}\)</span></p></li>
+<li class="fragment"><p>p = 110/200 = 0.55</p></li>
 </ul></li>
 </ul>
 </div>
+</div><div class="column" style="width:50%;">
+<div>
+<ul>
+<li class="fragment"><span class="math inline">\(Post_A \propto p^{52} (1-p)^{51}\)</span>
+<ul>
+<li class="fragment">52 heads out of 103 tosses?</li>
+</ul></li>
+<li class="fragment"><span class="math inline">\(Post_B \propto p^{60} (1-p)^{40} \times p^{50} (1-p)^{50}\)</span>
+<ul>
+<li class="fragment">110 heads out of 200 tosses?</li>
+</ul></li>
+<li class="fragment"><strong>Prior can legally increase your sample number using other information (misleading?)</strong></li>
+</ul>
+</div>
+</div>
+</div>
 </section>
-<section id="prior-1" class="slide level2">
-<h2>Prior</h2>
+<section id="priors-and-ecology" class="slide level2">
+<h2>Priors and ecology</h2>
+<ul>
+<li>Given that <em>y</em> = {-3, …, 3}, <em>x</em> = {-3, …, 3}, and <em>y = ax + b</em>, we don’t know if there is a correlaion but we can at least guess the parameter <em>a</em> should be much smaller than 1000, and probaly some where between -5 and 5.</li>
+</ul>
 
-<img data-src="figure/unnamed-chunk-12-1.png" width="960" class="r-stretch quarto-figure-center"></section>
-<section class="slide level2">
-
+<img data-src="figure/unnamed-chunk-13-1.png" width="1728" class="r-stretch quarto-figure-center"></section>
+<section id="priors-and-ecology-1" class="slide level2">
+<h2>Priors and ecology</h2>
+<div>
+<ul>
+<li class="fragment"><p><span class="math inline">\(y_i = ax_i + b_j\)</span></p>
+<ul>
+<li class="fragment">If the parameter <span class="math inline">\(b_j\)</span> is similar within each group (e.g., species differecne):</li>
+<li class="fragment">Likelihood: <span class="math inline">\(y_i \sim \mathcal{N}(ax_i + b_j, \sigma)\)</span></li>
+<li class="fragment">Prior: <span class="math inline">\(b_j \sim \mathcal{N}(\mu_b, \tau)\)</span></li>
+</ul></li>
+<li class="fragment"><p>If the data <span class="math inline">\(y_i\)</span> is similar to the surrounding samples (e.g., spatial autocorraliton):</p>
+<ul>
+<li class="fragment"><p>Likelihood: <span class="math inline">\(y_i \sim \mathcal{N}(\mu + \tilde{r_i}, \sigma)\)</span></p></li>
+<li class="fragment"><p>Prior: <span class="math inline">\(\tilde{r_i} = r_{m, n} \sim \mathcal{N}((r_{m-1, n-1} + r_{m, n-1} + r_{m+1, n-1} \\+ r_{m-1, n} +r_{m+1, n} \\ + r_{m+1, n-1} +r_{m+1, n} + r_{m+1, n+1})/8, \tau)\)</span></p></li>
+</ul></li>
+</ul>
+</div>
 </section></section>
 <section>
 <section id="multilevel-model" class="title-slide slide level1 center">
@@ -1324,7 +1368,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-18-1.png" width="672"></p>
+<p><img data-src="figure/unnamed-chunk-19-1.png" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1407,7 +1451,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-19-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-20-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1418,7 +1462,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-20-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-21-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1601,7 +1645,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-23-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-24-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1689,7 +1733,9 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <section id="references" class="slide level2">
 <h2>References</h2>
 <ul>
-<li><p>Gelman, A. et al.&nbsp;Bayesian Data Analysis, Third Edition. (Chapman &amp; Hall/CRC, 2013).</p></li>
+<li><p><a href="http://www.stat.columbia.edu/~gelman/book/">Gelman, A. et al.&nbsp;Bayesian Data Analysis, Third Edition. (Chapman &amp; Hall/CRC, 2013)</a></p></li>
+<li><p><a href="https://mc-stan.org/docs/stan-users-guide/index.html">Stan User’s Guide</a></p></li>
+<li><p><a href="https://mc-stan.org/docs/functions-reference/index.html">Stan Functions Reference</a></p></li>
 <li><p><a href="https://youtu.be/mX_NpDD7wwg">AIcia Solid Project</a> (in Japanese and Math)</p></li>
 </ul>
 
