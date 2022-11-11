@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.1.251">
 
   <meta name="author" content="Masatoshi Katabuchi">
-  <meta name="dcterms.date" content="2022-11-10">
+  <meta name="dcterms.date" content="2022-11-12">
   <title>Bayesian estimation for ecology</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -412,7 +412,7 @@
 <i class="fa-brands fa-twitter"></i> <span class="citation" data-cites="mattocci">@mattocci</span>
 </li>
 <li class="content__container__list__item">
-<i class="fa-brands fa-github"></i> github.com/mattocci27/phy-fun-div
+<i class="fa-brands fa-github"></i> github.com/mattocci27/bayes-afec
 </li>
 <li class="content__container__list__item">
 <i class="fa-solid fa-globe"></i> https://mattocci27.github.io
@@ -423,7 +423,7 @@
 </div>
 <p><br><br></p>
 <div class="absolute top-0 w-100" style="">
-<p><span class="fl">November 10, 2022</span> <span class="fr">XTBG AFEC</span></p>
+<p><span class="fl">November 12, 2022</span> <span class="fr">XTBG AFEC</span></p>
 </div>
 <aside class="notes">
 <p>hoge</p>
@@ -446,12 +446,12 @@
 <ul>
 <li class="fragment"><p>We Learn</p>
 <ul>
-<li class="fragment"><p>Why multilevel models are important</p></li>
 <li class="fragment"><p>Why Bayesian estimation is useful</p></li>
+<li class="fragment"><p>Why multilevel models are important</p></li>
 </ul></li>
 <li class="fragment"><p>We Do Not Learn</p>
 <ul>
-<li class="fragment">How to use and code Bayesian models in R</li>
+<li class="fragment">How to use and code Bayesian models in Stan and R</li>
 </ul></li>
 </ul>
 </div>
@@ -460,6 +460,7 @@
 <ul>
 <li>coding exercises are not the focus of this workshop</li>
 <li>it will take a couple of days</li>
+<li>idea of bayesian in ecology</li>
 </ul>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -551,12 +552,14 @@
 </section>
 <section id="likelihood-1" class="slide level2">
 <h2>Likelihood</h2>
+<p>When your data is x = {-1.5, 0, 1.5} and your model is <span class="math inline">\(x \sim \mathcal{N}(0, 1)\)</span>, what is the probability of observing x?</p>
+<div class="small">
 <div>
 <ul>
-<li class="fragment">When your data is x = {-1.5, 0, 1.5} and your model is <span class="math inline">\(x \sim \mathcal{N}(0, 1)\)</span>, what is the probability of observing x?</li>
 <li class="fragment"><span class="math inline">\(L = P(-1.5 \mid 0, 1) \times P(0 \mid 0, 1) \times P(1.5 \mid 0, 1)\)</span></li>
 <li class="fragment"><span class="math inline">\(\mathrm{log}L = \mathrm{log}P(-1.5 \mid 0, 1) + \mathrm{log}P(0 \mid 0, 1) + \mathrm{log}P(1.5 \mid 0, 1)\)</span></li>
 </ul>
+</div>
 </div>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
@@ -587,27 +590,33 @@
 </ul></li>
 </ul>
 </section>
-<section id="maximum-likelihood-estimation" class="slide level2">
-<h2>Maximum Likelihood Estimation</h2>
+<section id="maximum-likelihood-estimation-mle" class="slide level2">
+<h2>Maximum Likelihood Estimation (MLE)</h2>
 <ul>
-<li>2 survivors out of 5 seedlings: What is the survival probability of a seedling?</li>
+<li>2 survivors out of 5 seedlings: What is the survival probability of seedlings?</li>
 </ul>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><img data-src="images/seedling.png"></p>
+</div><div class="column" style="width:60%;">
 <div>
 <ul>
 <li class="fragment"><p><span class="math inline">\(p\)</span>: survival rates, <span class="math inline">\(1-p\)</span>: mortality rate</p></li>
 <li class="fragment"><p><span class="math inline">\(L = {}_5C_2 p^2(1-p)^3\)</span> (Binomial distribution)</p></li>
 <li class="fragment"><p><span class="math inline">\(\mathrm{ln}L = \mathrm{ln}{}_5C_2 2\mathrm{ln}p + 3\mathrm{ln}(1-p)\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(\frac{d\mathrm{ln}L}{dt} = 0\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(\frac{2}{p} - \frac{3}{1-p} = 0\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(\frac{d\mathrm{ln}L}{dt} = \frac{2}{p} - \frac{3}{1-p} = 0\)</span></p></li>
 <li class="fragment"><p><span class="math inline">\(p = \frac{2}{5}\)</span></p></li>
 </ul>
+</div>
+</div>
 </div>
 </section>
 <section id="outline" class="slide level2">
 <h2>Outline</h2>
 <ul>
 <li><p>Multilevel Model</p></li>
-<li><p>Theory</p></li>
+<li><p>Conditional Probability and Bayes’s Theorem</p></li>
+<li><p>Prior</p></li>
 <li><p>Multilevel Model Revisited</p></li>
 </ul>
 </section></section>
@@ -701,22 +710,22 @@
 <span id="cb6-34"><a href="#cb6-34"></a>  suv ~ bernoulli_logit(mu);</span>
 <span id="cb6-35"><a href="#cb6-35"></a>}</span>
 <span id="cb6-36"><a href="#cb6-36"></a></span>
-<span id="cb6-37"><a href="#cb6-37"></a><span class="co">// generated quantities {</span></span>
-<span id="cb6-38"><a href="#cb6-38"></a><span class="co">//   vector[N] log_lik;</span></span>
-<span id="cb6-39"><a href="#cb6-39"></a><span class="co">//   corr_matrix[K] Omega;</span></span>
-<span id="cb6-40"><a href="#cb6-40"></a><span class="co">//   Omega = multiply_lower_tri_self_transpose(L_Omega);</span></span>
-<span id="cb6-41"><a href="#cb6-41"></a><span class="co">//   for (n in 1:N) {</span></span>
-<span id="cb6-42"><a href="#cb6-42"></a><span class="co">//     log_lik[n] = bernoulli_logit_lpmf(suv[n] | x[n, ] * beta[, sp[n]] +</span></span>
-<span id="cb6-43"><a href="#cb6-43"></a><span class="co">//       phi[plot[n]] + xi[census[n]] + psi[tag[n]]);</span></span>
-<span id="cb6-44"><a href="#cb6-44"></a><span class="co">//   }</span></span>
+<span id="cb6-37"><a href="#cb6-37"></a><span class="kw">generated quantities</span> {</span>
+<span id="cb6-38"><a href="#cb6-38"></a>  <span class="dt">vector</span>[N] log_lik;</span>
+<span id="cb6-39"><a href="#cb6-39"></a>  <span class="dt">corr_matrix</span>[K] Omega;</span>
+<span id="cb6-40"><a href="#cb6-40"></a>  Omega = multiply_lower_tri_self_transpose(L_Omega);</span>
+<span id="cb6-41"><a href="#cb6-41"></a>  <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span>:N) {</span>
+<span id="cb6-42"><a href="#cb6-42"></a>    log_lik[n] = bernoulli_logit_lpmf(suv[n] | x[n, ] * beta[, sp[n]] +</span>
+<span id="cb6-43"><a href="#cb6-43"></a>      phi[plot[n]] + xi[census[n]] + psi[tag[n]]);</span>
+<span id="cb6-44"><a href="#cb6-44"></a>  }</span>
 <span id="cb6-45"><a href="#cb6-45"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="small">
 <ul>
 <li><p><span class="math inline">\(s_{i,j} \sim \mathcal{B}(p_{i, j})\)</span>: <span class="orange">likelihood</span></p></li>
-<li><p><span class="math inline">\(\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}\)</span></p></li>
-<li><p><span class="math inline">\(\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}\)</span></p></li>
+<li><p><span class="math inline">\(\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}\)</span>: linear algebra</p></li>
+<li><p><span class="math inline">\(\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}\)</span>: linear algebra</p></li>
 <li><p><span class="math inline">\(L \sim \mathrm{LkjCholesky}(\eta)\)</span>: <span class="blue">prior (?)</span></p></li>
 <li><p><span class="math inline">\(z_j \sim \mathcal{N}(0, 1)\)</span>: <span class="blue">prior (?)</span></p></li>
 <li><p><span class="math inline">\(\tau \sim \mathrm{Cauchy}(0, 2.5)\)</span>: <span class="blue">prior (?)</span></p></li>
@@ -945,27 +954,25 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <section class="slide level2">
 
 
-<img src="images/bayes_re_2.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
-<section class="slide level2">
-
-</section></section>
+<img src="images/bayes_re_2.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section></section>
 <section>
 <section id="prior" class="title-slide slide level1 center">
 <h1>Prior</h1>
 
-</section>
+<img data-src="figure/unnamed-chunk-11-1.png" width="960" class="r-stretch quarto-figure-center"></section>
 <section id="prior-coins" class="slide level2">
 <h2>Prior (coins)</h2>
 <ul>
 <li>A: 2 head out of 3 tosses -&gt; 2/3 = 0.666</li>
 <li>B: 60 heads out of 100 tosses -&gt; 60/100 = 0.6</li>
 </ul>
+<div class="fragment">
 <div class="columns">
 <div class="column" style="width:50%;">
 <ul>
 <li><p><span class="math inline">\(L_A = {}_3C_2 p^2 (1-p)^1\)</span></p></li>
 <li><p><span class="math inline">\(L_B = {}_{100}C_{60} p^{60} (1-p)^{40}\)</span></p></li>
-<li><p><span class="math inline">\(prior = p^{50} (1-p)^{50}\)</span></p>
+<li><p><span class="math inline">\(\mathrm{Prior} \propto p^{50} (1-p)^{50}\)</span></p>
 <ul>
 <li>Beta distribution with mean 0.5 and small variance</li>
 </ul></li>
@@ -975,8 +982,9 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-11-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-12-1.png" width="960"></p>
 </figure>
+</div>
 </div>
 </div>
 </div>
@@ -985,6 +993,8 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 </section>
 <section id="prior-coins-1" class="slide level2">
 <h2>Prior (coins)</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
 <div>
 <ul>
 <li class="fragment"><p><span class="math inline">\(Post_A \propto p^2 (1-p)^1 \times p^{50} (1-p)^{50}\)</span></p>
@@ -994,18 +1004,74 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 </ul></li>
 <li class="fragment"><p><span class="math inline">\(Post_B \propto p^{60} (1-p)^{40} \times p^{50} (1-p)^{50}\)</span></p>
 <ul>
-<li class="fragment"><p><span class="math inline">\(Post_B \propto p^{100} (1-p)^{90}\)</span></p></li>
-<li class="fragment"><p>p = 100/190 = 0.526</p></li>
+<li class="fragment"><p><span class="math inline">\(Post_B \propto p^{110} (1-p)^{90}\)</span></p></li>
+<li class="fragment"><p>p = 110/200 = 0.55</p></li>
 </ul></li>
 </ul>
 </div>
+</div><div class="column" style="width:50%;">
+<div>
+<ul>
+<li class="fragment"><span class="math inline">\(Like_B\)</span>: 60 heads out of 100 tosses</li>
+<li class="fragment"><span class="math inline">\(Prior_B\)</span>: P(H) is about 50% for other coins</li>
+<li class="fragment"><span class="math inline">\(Post_B\)</span>: P(H) is somewhere between 50% and 60% (55% in this example)</li>
+<li class="fragment"><strong>We usually have some sense of a scale about parameters, we can legally use that information</strong></li>
+</ul>
+</div>
+</div>
+</div>
 </section>
-<section id="prior-1" class="slide level2">
-<h2>Prior</h2>
+<section id="priors-and-ecology" class="slide level2">
+<h2>Priors and ecology</h2>
+<ul>
+<li>Given that <em>y</em> = {-3, …, 3}, <em>x</em> = {-3, …, 3}, and <em>y = ax + b</em>, we don’t know if there is a correlaion but we can at least guess the parameter <em>a</em> should be much smaller than 1000, and probaly some where between -5 and 5.</li>
+</ul>
 
-<img data-src="figure/unnamed-chunk-12-1.png" width="960" class="r-stretch quarto-figure-center"></section>
-<section class="slide level2">
-
+<img data-src="figure/unnamed-chunk-13-1.png" width="1728" class="r-stretch quarto-figure-center"></section>
+<section id="priors-and-ecology-1" class="slide level2">
+<h2>Priors and ecology</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-14-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:60%;">
+<div>
+<ul>
+<li class="fragment"><span class="math inline">\(y_i = ax_i + b_j\)</span>
+<ul>
+<li class="fragment">If the parameter <span class="math inline">\(b_j\)</span> is similar within each group (e.g., species difference):</li>
+<li class="fragment">Likelihood: <span class="math inline">\(y_i \sim \mathcal{N}(ax_i + b_j, \sigma)\)</span></li>
+<li class="fragment">Prior: <span class="math inline">\(b_j \sim \mathcal{N}(\mu_b, \tau)\)</span></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="priors-and-ecology-2" class="slide level2">
+<h2>Priors and ecology</h2>
+<div class="columns">
+<div class="column" style="width:35%;">
+<p><img data-src="images/spatial.png"></p>
+</div><div class="column" style="width:65%;">
+<div>
+<ul>
+<li class="fragment">If the data <span class="math inline">\(y_i\)</span> is similar to the surrounding samples (e.g., spatial autocorraliton):
+<ul>
+<li class="fragment">Likelihood: <span class="math inline">\(y_i \sim \mathcal{N}(\mu + \tilde{r_i}, \sigma)\)</span></li>
+<li class="fragment">Prior: <span class="math inline">\(\tilde{r_i} = r_{m, n} \sim \mathcal{N}((r_{m-1, n-1} + r_{m, n-1} + r_{m+1, n-1} \\+ r_{m-1, n} +r_{m+1, n} \\ + r_{m+1, n-1} +r_{m+1, n} + r_{m+1, n+1})/8, \tau)\)</span></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
 </section></section>
 <section>
 <section id="multilevel-model" class="title-slide slide level1 center">
@@ -1312,19 +1378,21 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 </div>
 </div><div class="column" style="width:60%;">
 <div>
+<div class="small">
 <ul>
 <li class="fragment"><p><code>p_true</code> ranges [0.23, 0.36]</p></li>
 <li class="fragment"><p><code>p_like</code> ranges [0.19, 0.5]</p></li>
-<li class="fragment"><p>The estimate shows larger variation (overestimation and underestimation)</p></li>
+<li class="fragment"><p>The estimate shows larger variation</p></li>
 <li class="fragment"><p>Because of the small sample size</p></li>
 </ul>
+</div>
 </div>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-18-1.png" width="672"></p>
+<p><img data-src="figure/unnamed-chunk-20-1.png" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1354,8 +1422,8 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <ul>
 <li><span class="math inline">\(S_i \sim \mathcal{B}(N_i, p)\)</span></li>
 </ul>
-
-<img data-src="images/pool.png" class="r-stretch"><div>
+<p><img data-src="images/pool.png"> </p>
+<div>
 <ul>
 <li class="fragment">This model doesn’t consider the variation among species</li>
 </ul>
@@ -1366,17 +1434,15 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <ul>
 <li><span class="math inline">\(S_i \sim \mathcal{B}(N_i, p_i)\)</span></li>
 </ul>
-
-<img data-src="images/seperate.png" class="r-stretch"><div>
+<p><img data-src="images/separate.png"> </p>
 <ul>
-<li class="fragment"><p>This model assumes that survival rates are 100% independent among species</p></li>
-<li class="fragment"><p>We need to find a balance between these two extremes</p></li>
+<li>This model assumes that survival rates are 100% independent among species</li>
 </ul>
-</div>
 <aside class="notes">
 <ul>
 <li>if we have infinite amount of data, we can estimate survival rates separately</li>
 <li>usually, we don’t have enough data (model tends to overfit)</li>
+<li>We need to find a balance between these two extremes</li>
 </ul>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -1397,7 +1463,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <li><p><span class="math inline">\(z_i \sim \mathcal{N}(\mu, \sigma)\)</span> where <span class="math inline">\(z_i = \mathrm{logit}(p_i) = \mathrm{log}\frac{p_i}{1 - p_i}\)</span></p></li>
 </ul>
 
-<img data-src="images/multilevel.png" class="r-stretch"></section>
+<img src="images/multilevel.png" width="80%" style="display: block; margin: auto;" class="r-stretch"></section>
 <section id="sigma-determines-species-variation" class="slide level2">
 <h2><span class="math inline">\(\sigma\)</span> determines species variation</h2>
 <p>When the overall survival rate is 0.5.</p>
@@ -1407,7 +1473,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-19-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-21-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1418,7 +1484,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-20-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-22-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1497,13 +1563,13 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <ul>
 <li><p><span class="math inline">\(S_i \sim \mathcal{B}_{logit}(N_i, z_i)\)</span>: likelihood</p></li>
 <li><p><span class="math inline">\(z_i \sim \mathcal{N}(\mu, \sigma)\)</span> : prior</p></li>
-<li><p><span class="math inline">\(\sigma \sim \mathrm{N}(0, 1)\)</span>: prior</p></li>
+<li><p><span class="math inline">\(\sigma \sim \mathcal{N}(0, 1)\)</span>: prior</p></li>
 <li><p><span class="math inline">\(\mu \sim \mathcal{N}(0, 5)\)</span>: prior</p></li>
 </ul>
 <h3 id="non-centered-parameterization">Non-Centered parameterization</h3>
 <ul>
 <li><p><span class="math inline">\(z_i = \mu + \sigma \cdot \tilde{z_i}\)</span></p></li>
-<li><p><span class="math inline">\(\tilde{z_i} \sim \mathcal{N}(0, 1)\)</span>: prior (?)</p></li>
+<li><p><span class="math inline">\(\tilde{z_i} \sim \mathcal{N}(0, 1)\)</span>: prior</p></li>
 </ul>
 </div>
 </div>
@@ -1601,18 +1667,18 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-23-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-25-1.png" width="960"></p>
 </figure>
-</div>
-</div>
 </div>
 </div>
 </div>
 <div>
 <ul>
 <li class="fragment"><p>Closed symbols (<code class="small">p_bayes</code>) came closer to the 1:1 line.</p></li>
-<li class="fragment"><p>This model uses a <strong>prior</strong> knowledge that species responses are some how similar to compensate the small data.</p></li>
+<li class="fragment"><p>This model uses a <strong>prior</strong> knowledge that species responses are some how similar and compensates the small data.</p></li>
 </ul>
+</div>
+</div>
 </div>
 <aside class="notes">
 <ul>
@@ -1631,47 +1697,94 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
           display:block!important;
       }</style></aside>
 </section>
-<section id="mle-and-multilevel-models" class="slide level2">
-<h2>MLE and multilevel models</h2>
-<ul>
-<li>We can do MLE for this kind of simple models.</li>
-</ul>
+<section id="mle-vs.-bayesian-estimation" class="slide level2">
+<h2>MLE vs.&nbsp;Bayesian estimation</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p>Bayesian estimation (<code>stan</code>)</p>
+<div class="cell" data-layout-align="center" data-output.var="simple_logistic" data-file="/Users/mattocci/Dropbox/education/bayes/stan/logistic.stan">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource stan number-lines code-with-copy"><code class="sourceCode stan"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">data</span> {</span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; I; <span class="co">// number of species</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; suv; <span class="co">// number of survivors</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; N; <span class="co">// number of individuals</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>, <span class="kw">upper</span>=I&gt; ii; <span class="co">// integer</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>}</span>
+<span id="cb10-7"><a href="#cb10-7"></a></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="kw">parameters</span> {</span>
+<span id="cb10-9"><a href="#cb10-9"></a>  <span class="dt">real</span> mu;</span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="dt">real</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; sigma;</span>
+<span id="cb10-11"><a href="#cb10-11"></a>  <span class="dt">vector</span>[I] z_tilde;</span>
+<span id="cb10-12"><a href="#cb10-12"></a>}</span>
+<span id="cb10-13"><a href="#cb10-13"></a></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="kw">transformed parameters</span> {</span>
+<span id="cb10-15"><a href="#cb10-15"></a>  <span class="dt">vector</span>[I] z;</span>
+<span id="cb10-16"><a href="#cb10-16"></a>  z = mu + sigma * z_tilde;</span>
+<span id="cb10-17"><a href="#cb10-17"></a>}</span>
+<span id="cb10-18"><a href="#cb10-18"></a></span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="kw">model</span> {</span>
+<span id="cb10-20"><a href="#cb10-20"></a>  mu ~ normal(<span class="dv">0</span>, <span class="dv">5</span>);</span>
+<span id="cb10-21"><a href="#cb10-21"></a>  z_tilde ~ std_normal();</span>
+<span id="cb10-22"><a href="#cb10-22"></a>  sigma ~ std_normal();</span>
+<span id="cb10-23"><a href="#cb10-23"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span>:I)</span>
+<span id="cb10-24"><a href="#cb10-24"></a>    suv[i] ~ binomial_logit(N[i], z[ii[i]]);</span>
+<span id="cb10-25"><a href="#cb10-25"></a>}</span>
+<span id="cb10-26"><a href="#cb10-26"></a></span>
+<span id="cb10-27"><a href="#cb10-27"></a><span class="kw">generated quantities</span> {</span>
+<span id="cb10-28"><a href="#cb10-28"></a>  <span class="dt">vector</span>[I] log_lik;</span>
+<span id="cb10-29"><a href="#cb10-29"></a>  <span class="dt">vector</span>[I] p = inv_logit(z);</span>
+<span id="cb10-30"><a href="#cb10-30"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span>:I)</span>
+<span id="cb10-31"><a href="#cb10-31"></a>    log_lik[i] = binomial_logit_lpmf(suv[i] | N[i], z[ii[i]]);</span>
+<span id="cb10-32"><a href="#cb10-32"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div><div class="column" style="width:50%;">
+<p>MLE (<code>lme4::glmer</code>)</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>fit <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
-<span id="cb10-2"><a href="#cb10-2"></a>   <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  (<span class="dv">1</span> <span class="sc">|</span> sp),</span>
-<span id="cb10-3"><a href="#cb10-3"></a>   <span class="at">data =</span> dummy_simple, <span class="at">family =</span> binomial)</span>
-<span id="cb10-4"><a href="#cb10-4"></a></span>
-<span id="cb10-5"><a href="#cb10-5"></a>logistic <span class="ot">&lt;-</span> <span class="cf">function</span>(z) <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>z))</span>
-<span id="cb10-6"><a href="#cb10-6"></a></span>
-<span id="cb10-7"><a href="#cb10-7"></a><span class="fu">logistic</span>(<span class="fu">coef</span>(fit)<span class="sc">$</span>sp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>    (Intercept)
-  A   0.2723475
-  B   0.3067352
-  C   0.2699021
-  D   0.2832543
-  E   0.2776155
-  F   0.2867060
-  G   0.2750370
-  H   0.3010925</code></pre>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>fit <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb11-2"><a href="#cb11-2"></a>   <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  (<span class="dv">1</span> <span class="sc">|</span> sp),</span>
+<span id="cb11-3"><a href="#cb11-3"></a>   <span class="at">data =</span> dummy_simple, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div>
+<ul>
+<li class="fragment">We can do MLE for this kind of simple models.</li>
+<li class="fragment">When a model is complicated, MLE often does not work well.</li>
+<li class="fragment">Model flexiblity for MLE is limited.</li>
+</ul>
 </div>
 </div>
+</div>
+<aside class="notes">
+<ul>
+<li>You need to relay on funcitons, such as <code>lme4::glmer</code>.</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
-<section id="mle-vs.-bayesian-estimation-multilevel-models" class="slide level2">
-<h2>MLE vs.&nbsp;Bayesian estimation (multilevel models)</h2>
+<section id="mle-vs.-bayesian-estimation-1" class="slide level2">
+<h2>MLE vs.&nbsp;Bayesian estimation</h2>
+<div>
 <h3 id="mle-e.g.-lme4">MLE (e.g., <code class="small">lme4</code>)</h3>
 <p><span class="math inline">\(L(\mu, \sigma) = \prod_i \int_{-\infty}^{\infty} \mathcal{B}(S_i \mid N_i, p_i) \times \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) dp_i\)</span></p>
 <ul>
-<li><p>Analytically find <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> to maximize <span class="math inline">\(L\)</span></p></li>
-<li><p>An analytical solution is often not available (this example is easy though)</p></li>
+<li class="fragment"><p>Analytically find <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> to maximize <span class="math inline">\(L\)</span></p></li>
+<li class="fragment"><p>An analytical solution is often not available (this example is easy though)</p></li>
 </ul>
 <h3 id="bayesian-estimation">Bayesian estimation</h3>
 <p><span class="math inline">\(P(\mu, \sigma \mid S_i, N_i) \propto \prod_i \mathcal{B}(S_i \mid N_i, p_i) \times \prod_i \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) \times \\ \mathcal{N}(\mu \mid 0, 5) \times \mathcal{N}(\sigma \mid 0, 1)\)</span></p>
 <ul>
-<li><p>Numerically find <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> to maximize <span class="math inline">\(P\)</span> (aka MCMC)</p></li>
-<li><p>MCMC works even if an analytical solution is not available</p></li>
-<li><p>(Bayes’s theorem supports the use of MCMC)</p></li>
+<li class="fragment"><p>Numerically find <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> to maximize <span class="math inline">\(P\)</span> (aka MCMC)</p></li>
+<li class="fragment"><p>MCMC works even if an analytical solution is not available</p></li>
+<li class="fragment"><p>Bayes’s theorem supports the use of MCMC</p></li>
 </ul>
+</div>
 <aside class="notes">
 <p>posterior distribution is proportional to the likelihood times the prior</p>
 <style type="text/css">
@@ -1686,10 +1799,27 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
           display:block!important;
       }</style></aside>
 </section>
+<section id="summary" class="slide level2">
+<h2>Summary</h2>
+<div>
+<h3 id="why-bayesian-estimation-is-useful">Why Bayesian estimation is useful</h3>
+<ul>
+<li class="fragment"><p>We can use a priori information about parameters in our model</p></li>
+<li class="fragment"><p>Models are flexible</p></li>
+<li class="fragment"><p>MCMC works even if models are complicated</p></li>
+</ul>
+<h3 id="why-multilevel-models-are-important">Why multilevel models are important</h3>
+<ul>
+<li class="fragment">Multilevel models have good balance between pooled estimates and separate estimates, which is useful for practical sample sizes</li>
+</ul>
+</div>
+</section>
 <section id="references" class="slide level2">
 <h2>References</h2>
 <ul>
-<li><p>Gelman, A. et al.&nbsp;Bayesian Data Analysis, Third Edition. (Chapman &amp; Hall/CRC, 2013).</p></li>
+<li><p><a href="http://www.stat.columbia.edu/~gelman/book/">Gelman, A. et al.&nbsp;Bayesian Data Analysis, Third Edition. (Chapman &amp; Hall/CRC, 2013)</a></p></li>
+<li><p><a href="https://mc-stan.org/docs/stan-users-guide/index.html">Stan User’s Guide</a></p></li>
+<li><p><a href="https://mc-stan.org/docs/functions-reference/index.html">Stan Functions Reference</a></p></li>
 <li><p><a href="https://youtu.be/mX_NpDD7wwg">AIcia Solid Project</a> (in Japanese and Math)</p></li>
 </ul>
 

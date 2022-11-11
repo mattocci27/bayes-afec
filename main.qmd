@@ -1,7 +1,7 @@
 ---
 pagetitle: "Bayesian estimation for ecology"
 author: "Masatoshi Katabuchi"
-date: "November 10, 2022"
+date: "November 12, 2022"
 host: "XTBG AFEC"
 institute: "XTBG, CAS"
 strip-comments: true
@@ -47,7 +47,7 @@ execute:
 🧑🏻‍💻 [`r rmarkdown::metadata$author` \@ `r rmarkdown::metadata$institute`]{.author}
 
 
-`r rotating_text(c('<i class="fa-solid fa-envelope"></i> mattocci27@gmail.com', '<i class="fa-brands fa-twitter"></i> @mattocci', '<i class="fa-brands fa-github"></i> github.com/mattocci27/phy-fun-div', '<i class="fa-solid fa-globe"></i> https://mattocci27.github.io'))`
+`r rotating_text(c('<i class="fa-solid fa-envelope"></i> mattocci27@gmail.com', '<i class="fa-brands fa-twitter"></i> @mattocci', '<i class="fa-brands fa-github"></i> github.com/mattocci27/bayes-afec', '<i class="fa-solid fa-globe"></i> https://mattocci27.github.io'))`
 </h3>
 :::
 
@@ -77,7 +77,7 @@ hoge
 
 - We Do Not Learn
 
-  - How to use and code Bayesian models in R
+  - How to use and code Bayesian models in Stan and R
 :::
 :::
 
@@ -173,7 +173,7 @@ dnorm(-1.5, mean = 0, sd = 1, log = TRUE) + dnorm(0, mean = 0, sd = 1, log = TRU
 
 ::: fragment
 
-```{r, fig.height=4}
+```{r, fig.height=3.5}
 like_fun <- function(mu) {
   dnorm(-1.5, mean = mu, sd = 1, log = TRUE) + dnorm(0, mean = mu, sd = 1, log = TRUE) + dnorm(1.5, mean = mu, sd = 1, log = TRUE)
 }
@@ -202,7 +202,7 @@ tibble(x, y) |>
 
 ---
 
-## Maximum Likelihood Estimation
+## Maximum Likelihood Estimation (MLE)
 
 - 2 survivors out of 5 seedlings: What is the survival probability of seedlings?
 
@@ -743,12 +743,10 @@ tibble(x, prior = y * 10^29.5) %>%
 :::
 ::: {.column width=50%}
 ::: incremental
-- $Post_A \propto p^{52} (1-p)^{51}$
-  - 52 heads out of 103 tosses?
-- $Post_B \propto p^{60} (1-p)^{40} \times p^{50} (1-p)^{50}$
-  - 110 heads out of 200 tosses?
-- **Prior can legally increase your sample number using other information (misleading?)**
-
+- $Like_B$: 60 heads out of 100 tosses
+- $Prior_B$: P(H) is about 50% for other coins
+- $Post_B$: P(H) is somewhere between 50% and 60% (55% in this example)
+-  **We usually have some sense of a scale about parameters, we can legally use that information**
 :::
 :::
 :::
@@ -790,21 +788,50 @@ p1 + p2
 
 ## Priors and ecology
 
-::: incremental
-- $y_i = ax_i + b_j$
+::: columns
+::: {.column width=40%}
 
-  - If the parameter $b_j$ is similar within each group (e.g., species differecne):
-  - Likelihood: $y_i \sim \mathcal{N}(ax_i + b_j, \sigma)$
-  - Prior: $b_j \sim \mathcal{N}(\mu_b, \tau)$
+```{r, fig.height=8}
+n_sp <- 5
+x <- seq(-3, 3, length.out = 100)
+b <- rnorm(n_sp, mean = 3, sd = 0.8)
+a <- 2
 
-- If the data $y_i$ is similar to the surrounding samples (e.g., spatial autocorraliton):
-  - Likelihood: $y_i \sim \mathcal{N}(\mu + \tilde{r_i}, \sigma)$
-
-  - Prior: $\tilde{r_i} = r_{m, n} \sim \mathcal{N}((r_{m-1, n-1} + r_{m, n-1} + r_{m+1, n-1} \\+ r_{m-1, n} +r_{m+1, n} \\ + r_{m+1, n-1} +r_{m+1, n} + r_{m+1, n+1})/8, \tau)$
+y <- map(b, \(b)(a*x + b))
+tibble(y = unlist(y), x = rep(x, n_sp), .id = rep(letters[1:n_sp], each = 100)) |>
+  ggplot(aes(x = x, y = y , col = .id)) +
+  geom_line(size = 1.5) +
+  theme(legend.position = "none",
+    axis.title   = element_text(size = 52),
+    axis.text    = element_text(size = 48))
+```
 
 :::
+::: {.column width=60%}
+::: incremental
+- $y_i = ax_i + b_j$
+  - If the parameter $b_j$ is similar within each group (e.g., species difference):
+  - Likelihood: $y_i \sim \mathcal{N}(ax_i + b_j, \sigma)$
+  - Prior: $b_j \sim \mathcal{N}(\mu_b, \tau)$
+:::
+:::
+:::
 
+## Priors and ecology
 
+::: columns
+::: {.column width="35%"}
+![](images/spatial.png)
+:::
+
+::: {.column width="65%"}
+::: incremental
+- If the data $y_i$ is similar to the surrounding samples (e.g., spatial autocorraliton):
+  - Likelihood: $y_i \sim \mathcal{N}(\mu + \tilde{r_i}, \sigma)$
+  - Prior: $\tilde{r_i} = r_{m, n} \sim \mathcal{N}((r_{m-1, n-1} + r_{m, n-1} + r_{m+1, n-1} \\+ r_{m-1, n} +r_{m+1, n} \\ + r_{m+1, n-1} +r_{m+1, n} + r_{m+1, n+1})/8, \tau)$
+:::
+:::
+:::
 
 # Multilevel model
 
@@ -906,12 +933,8 @@ dummy_simple |>
 :::
 
 ::: {.column width="65%"}
-
-
 ::: incremental
-
 - If we estimate each species separately, survival rates will be `p_like`
-
 :::
 
 :::
@@ -929,7 +952,6 @@ What is the survival rate?
 ```{r}
 dummy_simple <- tar_read(dummy_simple)
 dummy_simple |>
- # dplyr::select(sp:suv, p_like) |>
   knitr::kable(format = "html") |>
   kable_material(c("striped", "hover"), full_width = FALSE)
 ```
@@ -938,21 +960,19 @@ dummy_simple |>
 ::: {.column width="60%"}
 
 ::: incremental
-
+::: small
 - `p_true` ranges [`r min(dummy_simple$p_true)`, `r max(dummy_simple$p_true)`]
 
 - `p_like` ranges [`r min(dummy_simple$p_like)`, `r max(dummy_simple$p_like)`]
 
-- The estimate shows larger variation (overestimation and underestimation)
+- The estimate shows larger variation
 
 - Because of the small sample size
-
-
+:::
 :::
 
 ::: fragment
-
-```{r, fig.height=4.5, fig.width=7}
+```{r, fig.height=3.5, fig.width=7}
 ggplot(dummy_simple, aes(x = p_true, y = p_like)) +
   geom_point(size = 12, pch = 21) +
   geom_abline(slope = 1, intercept = 0, lty = 2) +
@@ -978,6 +998,7 @@ ggplot(dummy_simple, aes(x = p_true, y = p_like)) +
 - $S_i \sim \mathcal{B}(N_i, p)$
 
 ![](images/pool.png)
+<!-- <img src="images/pool.png" width="60%" style="display: block; margin: auto;"/> -->
 
 ::: incremental
 - This model doesn't consider the variation among species
@@ -989,17 +1010,15 @@ ggplot(dummy_simple, aes(x = p_true, y = p_like)) +
 
 - $S_i \sim \mathcal{B}(N_i, p_i)$
 
-![](images/seperate.png)
+![](images/separate.png)
+<!-- <img src="images/separate.png" width="60%" style="display: block; margin: auto;"/> -->
 
-::: incremental
 - This model assumes that survival rates are 100% independent among species
-
-- We need to find a balance between these two extremes
-:::
 
 ::: notes
 - if we have infinite amount of data, we can estimate survival rates separately
 - usually, we don't have enough data (model tends to overfit)
+- We need to find a balance between these two extremes
 :::
 
 ---
@@ -1010,7 +1029,8 @@ ggplot(dummy_simple, aes(x = p_true, y = p_like)) +
 
 - $z_i \sim \mathcal{N}(\mu, \sigma)$ where $z_i = \mathrm{logit}(p_i) = \mathrm{log}\frac{p_i}{1 - p_i}$
 
-![](images/multilevel.png)
+<!-- ![](images/multilevel.png) -->
+<img src="images/multilevel.png" width="80%" style="display: block; margin: auto;"/>
 
 ---
 
@@ -1068,7 +1088,7 @@ p1 / p2
 
 ::: {.column width=50%}
 ::: fragment
-```{r, fig.height=8}
+```{r, fig.height=4}
 p3
 ```
 :::
@@ -1110,7 +1130,7 @@ p3
 
 - $z_i \sim \mathcal{N}(\mu, \sigma)$ : prior
 
-- $\sigma \sim \mathrm{N}(0, 1)$: prior
+- $\sigma \sim \mathcal{N}(0, 1)$: prior
 
 - $\mu \sim \mathcal{N}(0, 5)$: prior
 
@@ -1118,7 +1138,7 @@ p3
 
 - $z_i = \mu + \sigma \cdot \tilde{z_i}$
 
-- $\tilde{z_i} \sim \mathcal{N}(0, 1)$: prior (?)
+- $\tilde{z_i} \sim \mathcal{N}(0, 1)$: prior
 :::
 :::
 
@@ -1140,7 +1160,7 @@ dummy_simple_re |>
 
 ::: {.column width="50%"}
 
-```{r, fig.height=7}
+```{r, fig.height=4}
 ggplot(dummy_simple_re, aes(x = p_true)) +
   # geom_point(aes(y = p_like), size = 12, pch = 21) +
   geom_jitter(aes(y = p_like), size = 12, pch = 21, width = 0.002) +
@@ -1148,17 +1168,16 @@ ggplot(dummy_simple_re, aes(x = p_true)) +
   annotate(geom = "text", x = 0.34, y = 0.38, label = "1:1", size = 10, angle = 18) +
   geom_abline(slope = 1, intercept = 0, lty = 2) +
   xlab("True survival rate") +
-  ylab("Estimated survival rate")
+  ylab("Estimated \nsurvival rate")
 ```
-
-
-:::
-:::
 
 ::: incremental
 - Closed symbols (`p_bayes`{.small}) came closer to the 1:1 line.
 
-- This model uses a **prior** knowledge that species responses are some how similar to compensate the small data.
+- This model uses a **prior** knowledge that species responses are some how similar and compensates the small data.
+:::
+
+:::
 :::
 
 
@@ -1170,24 +1189,40 @@ ggplot(dummy_simple_re, aes(x = p_true)) +
 
 ---
 
-## MLE and multilevel models
+## MLE vs. Bayesian estimation
 
-- We can do MLE for this kind of simple models.
+::: columns
+::: {.column width="50%"}
 
+Bayesian estimation (`stan`)
+```{stan, output.var="simple_logistic",file=here('stan/logistic.stan'), eval=FALSE, echo=TRUE}
+```
+:::
+::: {.column width="50%"}
+
+MLE (`lme4::glmer`)
 ```{r, echo=TRUE}
 fit <- lme4::glmer(
    cbind(suv, n - suv) ~  (1 | sp),
    data = dummy_simple, family = binomial)
-
-logistic <- function(z) 1 / (1 + exp(-z))
-
-logistic(coef(fit)$sp)
 ```
+::: incremental
+- We can do MLE for this kind of simple models.
+- When a model is complicated, MLE often does not work well.
+- Model flexiblity for MLE is limited.
+:::
+:::
+:::
+
+::: notes
+- You need to relay on funcitons, such as `lme4::glmer`.
+:::
 
 ---
 
-## MLE vs. Bayesian estimation (multilevel models)
+## MLE vs. Bayesian estimation
 
+::: incremental
 ### MLE (e.g., `lme4`{.small})
 
 $L(\mu, \sigma) = \prod_i \int_{-\infty}^{\infty} \mathcal{B}(S_i \mid N_i, p_i) \times \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) dp_i$
@@ -1204,13 +1239,29 @@ $P(\mu, \sigma \mid S_i, N_i) \propto \prod_i \mathcal{B}(S_i \mid N_i, p_i) \ti
 
 - MCMC works even if an analytical solution is not available
 
-- (Bayes's theorem supports the use of MCMC)
-
+- Bayes's theorem supports the use of MCMC
+:::
 
 ::: notes
 posterior distribution is proportional to the likelihood times the prior
 :::
 
+## Summary
+
+::: incremental
+### Why Bayesian estimation is useful
+
+- We can use a priori information about parameters in our model
+
+- Models are flexible
+
+- MCMC works even if models are complicated
+
+### Why multilevel models are important
+
+- Multilevel models have good balance between pooled estimates and separate estimates, which is useful for practical sample sizes
+
+:::
 
 ## References
 
