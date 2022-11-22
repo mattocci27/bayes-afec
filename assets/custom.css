@@ -126,11 +126,11 @@ h2 {
 }
 
 
-#title-slide {
+/* #title-slide {
   text-align: left;
   background-image: "images/tree_bg.png";
   background-size: 50%;
-}
+} */
 
 
 .reveal .slide blockquote {

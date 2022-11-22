@@ -34,7 +34,7 @@ execute:
 ```
 
 
-##  {#title-slide background="images/tree_bg.png" background-size="40%"}
+##  {#title-slide background="images/priors.png" background-size="50%" background-position="50% 20%"}
 
 ::: title-box
 <h2>
@@ -667,7 +667,7 @@ y <- my_prior(x)
 y2 <- my_like(x)
 y3 <- y * y2
 
-tibble(x, Prior = y * 10^29.5, Likelihood = y2, Posterior = y3 * 10^30.5) |>
+p1 <- tibble(x, Prior = y * 10^29.5, Likelihood = y2, Posterior = y3 * 10^30.5) |>
   pivot_longer(Prior:Posterior) |>
   mutate(name = factor(name, levels = c("Posterior", "Likelihood", "Prior"))) |>
   ggplot(aes(x = x, y = value, color = name)) +
@@ -680,7 +680,9 @@ tibble(x, Prior = y * 10^29.5, Likelihood = y2, Posterior = y3 * 10^30.5) |>
     legend.title = element_blank(),
     axis.text.y = element_blank()
     )
+p1
 
+ggsave("images/priors.png", p1, width = 10, height = 6)
 ```
 
 ## Prior (coins)
