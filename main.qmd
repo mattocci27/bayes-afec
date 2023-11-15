@@ -1,25 +1,22 @@
 ---
 pagetitle: "Bayesian estimation for ecology"
 author: "Masatoshi Katabuchi"
-date: "November 12, 2022"
+date: "November 17, 2023"
 host: "XTBG AFEC"
 institute: "XTBG, CAS"
 strip-comments: true
 format:
   revealjs:
+    mathjax: true
     logo: images/xtbg_logo.png
     chalkboard: true
     slide-number: true
     multiplex: true
-    # theme: simple
     theme: assets/rladies.scss
     show-slide-number: all
     controls: true
     width: 1440
     height: 810
-    # width: 1280
-    # height: 720
-    #css: [assets/custom.css, assets/tachyons-addon.css]
     css: [assets/custom.css]
     include-after: |
       <link rel="stylesheet" href="assets/syntax-highlight.css">
@@ -84,7 +81,7 @@ hoge
 ::: notes
 - coding exercises are not the focus of this workshop
 - it will take a couple of days
-- idea of bayesian in ecology
+- idea of Bayesian in ecology
 :::
 
 
@@ -97,7 +94,7 @@ Assuming everyone knows the concept of likelihood
 :::
 
 ::: notes
-Am I correct?
+correct?
 :::
 
 ---
@@ -218,9 +215,9 @@ tibble(x, y) |>
 
 - $L = {}_5C_2 p^2(1-p)^3$ (Binomial distribution)
 
-- $\mathrm{ln}L = \mathrm{ln}{}_5C_2 2\mathrm{ln}p + 3\mathrm{ln}(1-p)$
+- $\mathrm{ln}\;L = \mathrm{ln}\;{}_5C_2 + 2\mathrm{ln}\;p + 3\mathrm{ln}(1-p)$
 
-- $\frac{d\mathrm{ln}L}{dt} = \frac{2}{p} - \frac{3}{1-p}  = 0$
+- $\frac{d\mathrm{ln}\;L}{dt} = \frac{2}{p} - \frac{3}{1-p}  = 0$
 
 - $p = \frac{2}{5}$
 :::
@@ -687,12 +684,16 @@ ggsave("images/priors.png", p1, width = 10, height = 6)
 
 ## Prior (coins)
 
+### MLE
+
 - A: 2 head out of 3 tosses -> 2/3 = 0.666
 - B: 60 heads out of 100 tosses -> 60/100 = 0.6
 
 ::: fragment
 ::: columns
 ::: {.column width="50%"}
+
+### Bayesian
 
 - $L_A = {}_3C_2 p^2 (1-p)^1$
 
@@ -734,6 +735,8 @@ tibble(x, prior = y * 10^29.5) %>%
 
   - $Post_A \propto p^{52} (1-p)^{51}$
 
+  - $Post_A' = 52p^{51}(1-p)^{51}- \\ 51p^{52}(1-p)^{50}$
+
   -  p = 52/103 = 0.5048
 
 - $Post_B \propto p^{60} (1-p)^{40} \times p^{50} (1-p)^{50}$
@@ -746,16 +749,43 @@ tibble(x, prior = y * 10^29.5) %>%
 ::: {.column width=50%}
 ::: incremental
 - $Like_B$: 60 heads out of 100 tosses
-- $Prior_B$: P(H) is about 50% for other coins
-- $Post_B$: P(H) is somewhere between 50% and 60% (55% in this example)
+- $Prior_B$: P(H) is about 50%, a reasonable assumption based on existing knowledge of coins
+- $Post_B$: P(H) is likely between 50% and 60% (55% in this example)
 -  **We usually have some sense of a scale about parameters, we can legally use that information**
 :::
 :::
 :::
 
-## Priors and ecology
+## Priors and ecology (simple linear model; *y* = *ax* + *b*)
 
-- Given that *y* = {-3, ..., 3}, *x* = {-3, ..., 3}, and *y = ax + b*, we don't know if there is a correlaion but we can at least guess the parameter *a* should be much smaller than 1000, and probaly some where between -5 and 5.
+::: incremental
+- Considering variables *x* = {-3, ..., 3} and *y* = {-6, ..., 4}. At this point, we don't know if there is a correlation between *x* and *y*.
+- However, given the similar scales of *x* and *y*, it's reasonable to guess that *a* falls within a narrow range (-1000 < *a* < 1000 or -5 < *a* < 5 ?).
+- For example, *y* = 100 *x* + 2 doesn't work (blue line).
+:::
+
+::: fragment
+```{r, fig.height=6, fig.width=6}
+set.seed(123)
+x1 <- rnorm(100)
+y1 <- rnorm(100, 2 * x1 - 1)
+p1 <- tibble(x1, y1) |>
+  ggplot() +
+  xlab("x") +
+  ylab("y") +
+  geom_point(aes(x1, y1), size = 5) +
+  geom_abline(intercept = 2, slope = 1000, col = "blue", size = 2) +
+  theme(
+    axis.title   = element_text(size = 32),
+    axis.text    = element_text(size = 28))
+p1
+```
+:::
+
+## Priors and ecology (simple linear model; *y* = *ax* + *b*)
+
+- Considering variables *x* = {-3, ..., 3} and *y* = {-6, ..., 4}. At this point, we don't know if there is a correlation between *x* and *y*.
+- However, given the similar scales of *x* and *y*, it's reasonable to guess that *a* falls within a narrow range (-1000 < *a* < 1000 or -5 < *a* < 5 ?).
 
 ```{r, fig.height=7, fig.width=18}
 x1 <- seq(-2000, 2000, length.out = 100)
@@ -767,7 +797,6 @@ p1 <- tibble(x1, y1) |>
   ggtitle("N(0, 1000): Super-vague") +
   geom_line(aes(x1, y1)) +
   ylim(c(0, 0.01)) +
-  # ylim(c(0, 0.16)) +
   theme(
     axis.title   = element_text(size = 32),
     axis.text    = element_text(size = 28))
@@ -788,7 +817,7 @@ p1 + p2
 ```
 
 
-## Priors and ecology
+## Priors and ecology (group-level differences)
 
 ::: columns
 ::: {.column width=40%}
@@ -803,6 +832,7 @@ y <- map(b, \(b)(a*x + b))
 tibble(y = unlist(y), x = rep(x, n_sp), .id = rep(letters[1:n_sp], each = 100)) |>
   ggplot(aes(x = x, y = y , col = .id)) +
   geom_line(size = 1.5) +
+  scale_color_viridis_d() +
   theme(legend.position = "none",
     axis.title   = element_text(size = 52),
     axis.text    = element_text(size = 48))
@@ -819,7 +849,7 @@ tibble(y = unlist(y), x = rep(x, n_sp), .id = rep(letters[1:n_sp], each = 100)) 
 :::
 :::
 
-## Priors and ecology
+## Priors and ecology (autocorealtion)
 
 ::: columns
 ::: {.column width="35%"}
@@ -828,7 +858,7 @@ tibble(y = unlist(y), x = rep(x, n_sp), .id = rep(letters[1:n_sp], each = 100)) 
 
 ::: {.column width="65%"}
 ::: incremental
-- If the data $y_i$ is similar to the surrounding samples (e.g., spatial autocorraliton):
+- If the data $y_i$ is similar to the surrounding samples (e.g., spatial autocorrelation):
   - Likelihood: $y_i \sim \mathcal{N}(\mu + \tilde{r_i}, \sigma)$
   - Prior: $\tilde{r_i} = r_{m, n} \sim \mathcal{N}((r_{m-1, n-1} + r_{m, n-1} + r_{m+1, n-1} \\+ r_{m-1, n} +r_{m+1, n} \\ + r_{m+1, n-1} +r_{m+1, n} + r_{m+1, n+1})/8, \tau)$
 :::
@@ -878,7 +908,7 @@ What is the survival rate?
 ::: columns
 ::: {.column width="30%"}
 ```{r}
-dummy_simple <- tar_read(dummy_simple)
+dummy_simple <- targets::tar_read(dummy_simple)
 dummy_simple |>
   dplyr::select(sp:suv) |>
   knitr::kable(format = "html") |>
@@ -1209,15 +1239,15 @@ fit <- lme4::glmer(
    data = dummy_simple, family = binomial)
 ```
 ::: incremental
-- We can do MLE for this kind of simple models.
+- We can do MLE for these kind of simple models.
 - When a model is complicated, MLE often does not work well.
-- Model flexiblity for MLE is limited.
+- Model flexibility for MLE is limited.
 :::
 :::
 :::
 
 ::: notes
-- You need to relay on funcitons, such as `lme4::glmer`.
+- You need to rely on functions, such as `lme4::glmer`.
 :::
 
 ---
@@ -1251,6 +1281,7 @@ posterior distribution is proportional to the likelihood times the prior
 ## Summary
 
 ::: incremental
+
 ### Why Bayesian estimation is useful
 
 - We can use a priori information about parameters in our model
@@ -1261,7 +1292,9 @@ posterior distribution is proportional to the likelihood times the prior
 
 ### Why multilevel models are important
 
-- Multilevel models have good balance between pooled estimates and separate estimates, which is useful for practical sample sizes
+- Multilevel models have a good balance between pooled estimates and separate estimates, which is useful for practical sample sizes
+
+- Multilevel models handle nested or hierarchical data structures, a common and important scenario in ecological research (e.g., trees within species, community within sites, etc.).
 
 :::
 
