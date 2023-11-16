@@ -7,7 +7,7 @@ institute: "XTBG, CAS"
 strip-comments: true
 format:
   revealjs:
-    mathjax: true
+    html-math-method: mathjax
     logo: images/xtbg_logo.png
     chalkboard: true
     slide-number: true
@@ -132,6 +132,12 @@ $f(x \mid \mu, \sigma) = \frac{1}{\sqrt{2\pi\sigma^2}}\mathrm{exp} \bigl[{-\frac
 :::
 
 ::: fragment
+```{r, echo=TRUE}
+1 / sqrt(2 * pi * 1) * exp(-1/2 * (1.96 - 0)^2 / 1)
+```
+:::
+
+::: fragment
 - $P(x = 1.96 \mid \mu = 0, \sigma = 1)$
 :::
 
@@ -158,7 +164,7 @@ When your data is x = {-1.5, 0, 1.5} and your model is $x \sim \mathcal{N}(0, 1)
 ::: small
 ::: incremental
 - $L = P(-1.5 \mid 0, 1) \times P(0 \mid 0, 1) \times P(1.5 \mid 0, 1)$
-- $\mathrm{log}L = \mathrm{log}P(-1.5 \mid 0, 1) + \mathrm{log}P(0 \mid 0, 1) +  \mathrm{log}P(1.5 \mid 0, 1)$
+- $\mathrm{ln}\;L = \mathrm{ln}\;P(-1.5 \mid 0, 1) + \mathrm{ln}\;P(0 \mid 0, 1) +  \mathrm{ln}\;P(1.5 \mid 0, 1)$
 :::
 :::
 
@@ -180,7 +186,7 @@ y <- like_fun(x)
 tibble(x, y) |>
   ggplot() +
   xlab("mu") +
-  ylab("log L") +
+  ylab("ln L") +
   ggtitle("N(0, 1)") +
   geom_line(aes(x, y)) +
   theme(
@@ -246,6 +252,7 @@ tibble(x, y) |>
 :::
 
 ::: {.column width="60%"}
+### Negative density dependence (NDD)
 
 "...rare species suffered more from the presence of conspecific neighbors than common species did, suggesting that conspecific density dependence shapes species abundances in diverse communities."
 
@@ -260,7 +267,7 @@ tibble(x, y) |>
 ---
 
 
-## Multilevel model (verbal model)
+## Multilevel model (NDD: verbal model)
 
 ::: footer
 Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010).
@@ -293,7 +300,7 @@ tmp <- tibble(z,
               x = rep(xx, n_sp),
               sp = rep(paste0("sp", 1:n_sp), each = n_rep))
 
-tmp2 <- tibble(x = xx, y = gamma1 * xx + gamma0)
+tmp2 <- tibble(x = trait, y = b1, sp = rep(paste0("sp", 1:n_sp)))
 logistic <- function(z) 1 / (1 + exp(-z))
 
 p1 <- tmp |>
@@ -311,33 +318,142 @@ p2 <- tmp |>
   theme(legend.position = "none")
 
 p3 <- tmp2 |>
-  ggplot(aes(x = x, y = y)) +
-  geom_line() +
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_smooth(method = "lm", se = TRUE, lty = 2,
+    alpha = 0.2,
+    linewidth = 0.5, col = "black") +
+  geom_point(size = 3) +
   xlab("Abundance") +
   ylab("Strength of NDD") +
   theme(legend.position = "none")
 
 p1 + p2 + p3
 ```
----
+## Multilevel model (tree allometry: verbal model)
+
+::: footer
+Inspired by [1]
+Martínez Cano *et al.* Tropical Tree Height and Crown Allometries for the Barro Colorado Nature Monument, Panama: A Comparison of Alternative Hierarchical Models Incorporating Interspecific Variation in Relation to Life History Traits. Biogeosciences 16, 847–62 (2019).
+:::
+
+::: small
+There is a power-law relationship ($y = ax^b$) between tree diameter (DBH) and crown area, and the power-law exponent varies among species.
+Those relationships depend on wood density.
+
+- Model crown area as a function of DBH (individual-level).
+
+- Model the coefficient *b* as a function of wood density (group-level).
+:::
+
+```{r, echo=FALSE, fig.width=15, fig.height=5, fig.retina=3}
+set.seed(12345)
+
+n_sp <- 10
+n_rep <- 80
+trait <- rnorm(n_sp, 0, 1)
+gamma0 <- 1.35
+gamma1 <- 0.05
+b1_hat <- gamma1 * trait + gamma0
+b1 <- rnorm(n_sp, b1_hat, 0.01)
+b0 <- rnorm(n_sp, 0.55, 0.05)
+y_fun <- function(beta0, beta1) beta0 + beta1 * log_xx
+log_xx <- seq(1, 100, length = n_rep) |> log()
+
+log_y <- map2(as.list(b0), as.list(b1), y_fun) |> unlist()
+
+tmp <- tibble(y = exp(log_y),
+              x = rep(exp(log_xx), n_sp),
+              sp = rep(paste0("sp", 1:n_sp), each = n_rep))
+
+tmp2 <- tibble(x = trait, y = b1, sp = rep(paste0("sp", 1:n_sp)))
+
+p1 <- tmp |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_line() +
+  xlab("DBH (cm)") +
+  ylab(expression("Crown area (m"^2*")")) +
+  ggtitle(expression("y = ax"^b)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 24)
+    )
 
 
-## Multilevel model (non-verbal fake model)
+p2 <- tmp |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_line() +
+  xlab("DBH (cm)") +
+  ylab(expression("Crown area (m"^2*")")) +
+  ggtitle("log(y) = log(a) + b log(x)") +
+  scale_x_log10() +
+  scale_y_log10() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 24)
+    )
 
-```{r, echo=TRUE, eval=FALSE}
-fit <- lme4::glmer(
-   cbind(suv, n - suv) ~  (1 | sp),
-   data = dummy_simple, family = binomial)
+p3 <- tmp2 |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_smooth(method = "lm", se = TRUE, lty = 2,
+    alpha = 0.2,
+    linewidth = 0.5, col = "black") +
+  geom_point(size = 3) +
+  xlab("Wood density") +
+  ylab("b") +
+  theme(legend.position = "none")
+
+p1 + p2 + p3
 ```
 
-::: incremental
+---
 
-- Not that simple
+## Multilevel model (MLE: non-verbal 'dummy' model 1)
+
+```{r, echo=FALSE, eval=FALSE}
+library(tidyverse)
+library(targets)
+tar_load(dummy_simple)
+```
+
+### Individual-level model: GLMM
+
+```{r, echo=TRUE, eval=FALSE}
+fit_ind <- lme4::glmer(
+  cbind(suv, n - suv) ~  cons + (1 + cons | sp),
+  data = dummy, family = binomial)
+```
+
+We need to extract the slope coefficients for each species from `fit_ind` and make `new_data`.
+
+::: fragment
+### Group-level model: LM
+
+```{r, echo=TRUE, eval=FALSE}
+fit_gr <- lm(slope_coef ~  abund, data = new_data)
+```
+:::
+
+::: incremental
+- This often returns wrong estimates
 :::
 
 ---
 
-## Multilevel model (non-verbal model) `r emo::ji("vomit")`
+## Multilevel model (MLE: non-verbal 'dummy' model 2)
+
+```{r, echo=TRUE, eval=FALSE}
+fit_all <- lme4::glmer(
+  cbind(suv, n - suv) ~  cons + abund + cons:abund + (1 + cons | sp),
+  data = dummy, family = binomial)
+```
+
+::: incremental
+- This doesn't work for complicated models
+:::
+
+---
+
+## Multilevel model (Bayes: non-verbal model) `r emo::ji("vomit")`
 
 ::: footer
 Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010).
@@ -354,9 +470,9 @@ Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P
 ::: small
 - $s_{i,j} \sim \mathcal{B}(p_{i, j})$: [likelihood]{.orange}
 
-- $\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}$: linear algebra
+- $\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}$: individual-level model
 
-- $\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}$: linear algebra
+- $\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}$: species-level model
 
 - $L \sim \mathrm{LkjCholesky}(\eta)$: [prior (?)]{.blue}
 
@@ -427,7 +543,7 @@ e.g., probability of rolling a dice and getting an odd number is 3/6 = 1/2
 
 ::: columns
 
-::: {.column width="50%"}
+::: {.column width="40%"}
 
 ```{r, eval=FALSE}
 ggplot() +
@@ -490,27 +606,31 @@ ggplot2::ggplot(data = df.venn) +
 
 :::
 
-::: {.column width="50%"}
+::: {.column width="60%"}
 
-Probility of A ocurring given B has already occured:
+Probability of A occurring given B has already occurred:
 
 $$
-P(A \mid B) = \frac{A \cap B}{B} = \frac{(A \cap B)/U}{B/U} \\
-= \frac{P(A \cap B)}{P(B)}
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
 $$
 
+::: incremental
 e.g.,
 
-- P(Cough) = 5%
-- P(Cough | Sick) = 75%.
+- P(hangover) = 4%
+- P(hangover | beer) = 6%.
+- P(hangover | baiju) = 85%.
+:::
 
 :::
 :::
 
 ::: notes
-- probablity A occurs given B
+- probability A occurs given B
 - vertical bar = given
-- Conditional probablity that someone is coughing is higher than the probability that someone is coughing in general.
+- at least 1 day for each month
+- the next day after I had beer
+- the next day after I had baiju
 :::
 
 ---
@@ -566,14 +686,6 @@ $$
 
 ---
 
-<img src="images/fip_7.png" width="100%" style="display: block; margin: auto;"/>
-
----
-
-<img src="images/fip_8.png" width="100%" style="display: block; margin: auto;"/>
-
----
-
 ## Forward and Inverse Problems
 
 
@@ -586,15 +698,15 @@ $$
 
 - Randomly choose a bag X or Y
 
-- $P(A)$: [Probability of choosing X]{.blue}
+- $P(A)$: [Choosing X]{.blue}
 
-- $P(B)$: [Probability of drawing a red ball]{.blue}
+- $P(B)$: [Drawing a red ball]{.blue}
 
-- $P(A \cap B)$: [Probability of choosing X and drawing a red ball]{.blue}
+- $P(B \mid A)$: [Getting a red ball from X]{.blue}
 
-- $P(B \mid A)$: [Probability of drawing a red ball when you chose X]{.blue}
+- $P(A \cap B)$: [Choosing X and drawing a red ball]{.blue}
 
-- $P(A \mid B)$: [Probability that you atually chose X, when you got a red ball]{.orange}
+- $P(A \mid B)$: [Picked X, because you got a red ball(?)]{.orange}
 :::
 :::
 
@@ -634,7 +746,7 @@ $$
 ::: incremental
 - $P(\mathrm{Parameter} \mid \mathrm{Data})$
 
-  - When you got your data, what were the parameters behind the data (e.g., coefficients of regressoins)?
+  - When you got your data, what were the parameters behind the data (e.g., coefficients of regressions)?
 
 - $P(\mathrm{Data} \mid \mathrm{Parameter})$
 
@@ -642,7 +754,7 @@ $$
 
 - $P(\mathrm{Parameter})$
 
-  - Probaility to get your parameters (i.e., **prior**)
+  - Probability to get your parameters. This is what you assume for your parameter before you see any data (i.e., **prior**).
 
 - $P(\mathrm{Data})$
 
@@ -735,7 +847,7 @@ tibble(x, prior = y * 10^29.5) %>%
 
   - $Post_A \propto p^{52} (1-p)^{51}$
 
-  - $Post_A' = 52p^{51}(1-p)^{51}- \\ 51p^{52}(1-p)^{50}$
+  - $Post_A' = 52p^{51}(1-p)^{51}-$ \n $51p^{52}(1-p)^{50}$
 
   -  p = 52/103 = 0.5048
 
@@ -751,7 +863,7 @@ tibble(x, prior = y * 10^29.5) %>%
 - $Like_B$: 60 heads out of 100 tosses
 - $Prior_B$: P(H) is about 50%, a reasonable assumption based on existing knowledge of coins
 - $Post_B$: P(H) is likely between 50% and 60% (55% in this example)
--  **We usually have some sense of a scale about parameters, we can legally use that information**
+-  We usually have some sense of a scale about parameters, we can legally use that information
 :::
 :::
 :::
@@ -765,7 +877,7 @@ tibble(x, prior = y * 10^29.5) %>%
 :::
 
 ::: fragment
-```{r, fig.height=6, fig.width=6}
+```{r, fig.height=5, fig.width=5}
 set.seed(123)
 x1 <- rnorm(100)
 y1 <- rnorm(100, 2 * x1 - 1)
@@ -792,7 +904,7 @@ x1 <- seq(-2000, 2000, length.out = 100)
 y1 <- dnorm(x1, mean = 0, sd = 1000)
 p1 <- tibble(x1, y1) |>
   ggplot() +
-  xlab("a") +
+  xlab(expression("a")) +
   ylab("Density") +
   ggtitle("N(0, 1000): Super-vague") +
   geom_line(aes(x1, y1)) +
@@ -817,7 +929,7 @@ p1 + p2
 ```
 
 
-## Priors and ecology (group-level differences)
+## Priors and ecology (multilevel model: group-level differences)
 
 ::: columns
 ::: {.column width=40%}
@@ -842,25 +954,28 @@ tibble(y = unlist(y), x = rep(x, n_sp), .id = rep(letters[1:n_sp], each = 100)) 
 ::: {.column width=60%}
 ::: incremental
 - $y_i = ax_i + b_j$
-  - If the parameter $b_j$ is similar within each group (e.g., species difference):
+  - If the parameter $b_j$ is similar within each group (e.g., species differences, site differences):
   - Likelihood: $y_i \sim \mathcal{N}(ax_i + b_j, \sigma)$
   - Prior: $b_j \sim \mathcal{N}(\mu_b, \tau)$
 :::
 :::
 :::
 
-## Priors and ecology (autocorealtion)
+## Priors and ecology (multilevel model: autocorealtion)
 
 ::: columns
-::: {.column width="35%"}
+::: {.column width="30%"}
 ![](images/spatial.png)
 :::
 
-::: {.column width="65%"}
-::: incremental
+::: {.column width="70%"}
+
 - If the data $y_i$ is similar to the surrounding samples (e.g., spatial autocorrelation):
+
+::: incremental
   - Likelihood: $y_i \sim \mathcal{N}(\mu + \tilde{r_i}, \sigma)$
-  - Prior: $\tilde{r_i} = r_{m, n} \sim \mathcal{N}((r_{m-1, n-1} + r_{m, n-1} + r_{m+1, n-1} \\+ r_{m-1, n} +r_{m+1, n} \\ + r_{m+1, n-1} +r_{m+1, n} + r_{m+1, n+1})/8, \tau)$
+  - Prior: $\tilde{r_i} = r_{m, n} \sim \mathcal{N}(\phi_{m,n}, \tau)$
+  - $\phi_{m,n} = (r_{m-1, n-1} + r_{m, n-1} + r_{m+1, n-1} +$ \n $r_{m-1, n} + r_{m+1, n} +$ \n  $r_{m+1, n-1} + r_{m+1, n} + r_{m+1, n+1})/8$
 :::
 :::
 :::
@@ -938,7 +1053,7 @@ suv_pool <- sum(dummy_simple$suv) / sum(dummy_simple$n)
 
 ::: incremental
 
-- If we pool all the data, survival rate will be about `r suv_pool |> round(3)`
+- If we pool all the data, the survival rate will be about `r suv_pool |> round(3)`
 
 :::
 
@@ -996,10 +1111,9 @@ dummy_simple |>
 - `p_true` ranges [`r min(dummy_simple$p_true)`, `r max(dummy_simple$p_true)`]
 
 - `p_like` ranges [`r min(dummy_simple$p_like)`, `r max(dummy_simple$p_like)`]
+- The estimate shows the larger variation
 
-- The estimate shows larger variation
-
-- Because of the small sample size
+- Because of the small sample size (common in ecological studies)
 :::
 :::
 
@@ -1022,6 +1136,11 @@ ggplot(dummy_simple, aes(x = p_true, y = p_like)) +
 - These data were simulated based on `p_true`, but the ML estimates are slightly different
 - we want to improve the estimates
 :::
+
+::: footer
+We know `p_true` because we generated this data using `p_true` as a known parameter. In practical scenarios, we don't know `p_true`.
+:::
+
 
 ---
 
@@ -1068,68 +1187,79 @@ ggplot(dummy_simple, aes(x = p_true, y = p_like)) +
 
 ## $\sigma$ determines species variation
 
-When the overall survival rate is 0.5.
-
+The overall survival rate is 0.5 in this example.
+We have some sense of a scale for $\sigma$.
 
 ::: columns
 ::: {.column width=50%}
-```{r, fig.height=8}
+```{r, fig.height=10}
 set.seed(123)
 z <- 0
 sig1 <- 0.1
 sig2 <- 1
+sig3 <- 3
 n_sp <- 8
 sig <- 0.2
 
 xx <- seq(-3, 3, length = 100)
 mu1 <- rnorm(n_sp, z, sig1)
 mu2 <- rnorm(n_sp, z, sig2)
+mu3 <- rnorm(n_sp, z, sig3)
 
-data <- tibble(mu1 = as.list(mu1), mu2 = as.list(mu2), sp = LETTERS[1:8]) |>
+data <- tibble(mu1 = as.list(mu1), mu2 = as.list(mu2), mu3 = as.list(mu3), sp = LETTERS[1:8]) |>
   mutate(y1 = map(mu1, \(mu)dnorm(xx, mu, sig))) |>
   mutate(y2 = map(mu2, \(mu)dnorm(xx, mu, sig))) |>
-  unnest(cols = c(mu1, mu2, y1, y2))  |>
+  mutate(y3 = map(mu3, \(mu)dnorm(xx, mu, sig))) |>
+  unnest(cols = c(mu1, mu2, mu3, y1, y2, y3))  |>
   mutate(xx = rep(xx, 8))
 
-p1 <- ggplot(data, aes(x = logistic(xx), y = y1, col = sp)) +
-  geom_line() +
-  xlab("p") +
-  ylab("Density") +
-  theme(legend.position = "none") +
-  ggtitle("sigma = 0.1")
+plot_density <- function(data, y, title_suffix) {
+  ggplot(data, aes(x = logistic(xx), y = {{y}}, col = sp)) +
+    geom_line() +
+    xlab("p") +
+    ylab("Density") +
+    theme(legend.position = "none") +
+    ggtitle(paste("sigma =", title_suffix))
+}
 
-p2 <- ggplot(data, aes(x = logistic(xx), y = y2, col = sp)) +
-  geom_line() +
-  xlab("p") +
-  ylab("Density") +
-  theme(legend.position = "none") +
-  ggtitle("sigma = 1.0")
+p1 <- plot_density(data, y1, "0.1")
+p2 <- plot_density(data, y2, "1")
+p3 <- plot_density(data, y3, "10")
 
-sigma <- seq(0.01, 3, length = 100)
-y <- dcauchy(sigma, 0, 1)
-
-p3 <- tibble(sigma, y) |>
-  ggplot(aes(x = sigma, y = y)) +
-  geom_line() +
-  xlab("Sigma") +
-  ylab("Density") +
-  ggtitle("sigma ~ N(0, 1)")
-p1 / p2
+p1 / p2 / p3
 ```
 :::
 
 ::: {.column width=50%}
 ::: fragment
-```{r, fig.height=4}
-p3
+```{r, fig.height=10}
+plot_sigma <- function(density_func, params, title) {
+  y <- density_func(sigma, params[[1]], params[[2]])
+  tibble(sigma, y) %>%
+    ggplot(aes(x = sigma, y = y)) +
+    geom_line() +
+    xlab("Sigma") +
+    ylab("Density") +
+    ggtitle(title)
+}
+
+# Sigma values
+sigma <- seq(0.01, 10, length = 100)
+
+# Generating plots
+p4 <- plot_sigma(dcauchy, list(0, 1), "sigma ~ Half-Cauchy(0, 1)")
+p5 <- plot_sigma(dnorm, list(0, 1), "sigma ~ Half-N(0, 1)")
+p6 <- plot_sigma(dnorm, list(0, 10), "sigma ~ Half-N(0, 10)")
+
+p4 / p5 / p6
 ```
 :::
 
 ::: incremental
-- We have some sense of a scale for $\sigma$
-- `logistic(0.3) - 0.5` = `r round(logistic(0.3) - 0.5, 3)`
-- `logistic(3) - 0.5` = `r round(logistic(3) - 0.5, 3)`
-- `logistic(10) - 0.5` = `r round(logistic(10) - 0.5, 5)`
+<!-- - We have some sense of a scale for $\sigma$ -->
+<!-- - `logistic(0.1)` = `r round(logistic(0.1), 3)`
+- `logistic(1)` = `r round(logistic(1), 3)`
+- `logistic(10) - 0.5` = `r round(logistic(10) - 0.5, 5)` -->
 :::
 :::
 :::
@@ -1192,9 +1322,8 @@ dummy_simple_re |>
 
 ::: {.column width="50%"}
 
-```{r, fig.height=4}
+```{r, fig.height=6}
 ggplot(dummy_simple_re, aes(x = p_true)) +
-  # geom_point(aes(y = p_like), size = 12, pch = 21) +
   geom_jitter(aes(y = p_like), size = 12, pch = 21, width = 0.002) +
   geom_jitter(aes(y = p_bayes), size = 12, pch = 16, width = 0.002) +
   annotate(geom = "text", x = 0.34, y = 0.38, label = "1:1", size = 10, angle = 18) +
@@ -1204,9 +1333,9 @@ ggplot(dummy_simple_re, aes(x = p_true)) +
 ```
 
 ::: incremental
-- Closed symbols (`p_bayes`{.small}) came closer to the 1:1 line.
+- Closed symbols (`p_bayes`{.small}) align more closely with the 1:1 line, indicating more accurate estimates.
 
-- This model uses a **prior** knowledge that species responses are some how similar and compensates the small data.
+- This model compensates for limited data by using **prior** knowledge that species responses are somehow similar and compensates for limited data.
 :::
 
 :::
@@ -1251,7 +1380,6 @@ fit <- lme4::glmer(
 :::
 
 ---
-
 ## MLE vs. Bayesian estimation
 
 ::: incremental
@@ -1259,13 +1387,15 @@ fit <- lme4::glmer(
 
 $L(\mu, \sigma) = \prod_i \int_{-\infty}^{\infty} \mathcal{B}(S_i \mid N_i, p_i) \times \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) dp_i$
 
+
 - Analytically find $\mu$ and $\sigma$ to maximize $L$
 
 - An analytical solution is often not available (this example is easy though)
 
 ### Bayesian estimation
 
-$P(\mu, \sigma \mid S_i, N_i) \propto \prod_i \mathcal{B}(S_i \mid N_i, p_i) \times \prod_i \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) \times \\ \mathcal{N}(\mu \mid 0, 5) \times  \mathcal{N}(\sigma \mid 0, 1)$
+$P(\mu, \sigma \mid S_i, N_i) \propto \prod_i \mathcal{B}(S_i \mid N_i, p_i) \times \prod_i \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) \times$ \n
+$\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\mathcal{N}(\mu \mid 0, 5) \times \mathcal{N}(\sigma \mid 0, 2.5)$
 
 - Numerically find $\mu$ and $\sigma$ to maximize $P$ (aka MCMC)
 
@@ -1307,3 +1437,4 @@ posterior distribution is proportional to the likelihood times the prior
 - [Stan Functions Reference](https://mc-stan.org/docs/functions-reference/index.html)
 
 - [AIcia Solid Project](https://youtu.be/mX_NpDD7wwg) (in Japanese and Math)
+

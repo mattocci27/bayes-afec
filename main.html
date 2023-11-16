@@ -522,13 +522,21 @@
 </ul>
 </div>
 <div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="dv">1</span> <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span> <span class="sc">*</span> (<span class="fl">1.96</span> <span class="sc">-</span> <span class="dv">0</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 0.05844094</code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
 <ul>
 <li><span class="math inline">\(P(x = 1.96 \mid \mu = 0, \sigma = 1)\)</span></li>
 </ul>
 </div>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">dnorm</span>(<span class="fl">1.96</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">dnorm</span>(<span class="fl">1.96</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  [1] 0.05844094</code></pre>
 </div>
@@ -559,13 +567,13 @@
 <div>
 <ul>
 <li class="fragment"><span class="math inline">\(L = P(-1.5 \mid 0, 1) \times P(0 \mid 0, 1) \times P(1.5 \mid 0, 1)\)</span></li>
-<li class="fragment"><span class="math inline">\(\mathrm{log}L = \mathrm{log}P(-1.5 \mid 0, 1) + \mathrm{log}P(0 \mid 0, 1) + \mathrm{log}P(1.5 \mid 0, 1)\)</span></li>
+<li class="fragment"><span class="math inline">\(\mathrm{ln}\;L = \mathrm{ln}\;P(-1.5 \mid 0, 1) + \mathrm{ln}\;P(0 \mid 0, 1) + \mathrm{ln}\;P(1.5 \mid 0, 1)\)</span></li>
 </ul>
 </div>
 </div>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">dnorm</span>(<span class="sc">-</span><span class="fl">1.5</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">log =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">dnorm</span>(<span class="dv">0</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">log =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">dnorm</span>(<span class="fl">1.5</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">log =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">dnorm</span>(<span class="sc">-</span><span class="fl">1.5</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">log =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">dnorm</span>(<span class="dv">0</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">log =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">dnorm</span>(<span class="fl">1.5</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">log =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  [1] -5.006816</code></pre>
 </div>
@@ -576,7 +584,7 @@
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-4-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-5-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -633,6 +641,7 @@
 <div class="column" style="width:40%;">
 <p><img data-src="images/comita_cover.jpg"></p>
 </div><div class="column" style="width:60%;">
+<h3 id="negative-density-dependence-ndd">Negative density dependence (NDD)</h3>
 <p>“…rare species suffered more from the presence of conspecific neighbors than common species did, suggesting that conspecific density dependence shapes species abundances in diverse communities.”</p>
 <p>- Comita et al.&nbsp;2010 -</p>
 </div>
@@ -641,8 +650,8 @@
 <p>[1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. &amp; Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010).</p>
 </div>
 </section>
-<section id="multilevel-model-verbal-model" class="slide level2">
-<h2>Multilevel model (verbal model)</h2>
+<section id="multilevel-model-ndd-verbal-model" class="slide level2">
+<h2>Multilevel model (NDD: verbal model)</h2>
 <div class="footer">
 <p>Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. &amp; Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010).</p>
 </div>
@@ -654,80 +663,116 @@
 </ul>
 </div>
 
-<img data-src="figure/unnamed-chunk-5-1.png" width="1440" class="r-stretch quarto-figure-center"></section>
-<section id="multilevel-model-non-verbal-fake-model" class="slide level2">
-<h2>Multilevel model (non-verbal fake model)</h2>
+<img data-src="figure/unnamed-chunk-6-1.png" width="1440" class="r-stretch quarto-figure-center"></section>
+<section id="multilevel-model-tree-allometry-verbal-model" class="slide level2">
+<h2>Multilevel model (tree allometry: verbal model)</h2>
+<div class="footer">
+<p>Inspired by [1] Martínez Cano <em>et al.</em> Tropical Tree Height and Crown Allometries for the Barro Colorado Nature Monument, Panama: A Comparison of Alternative Hierarchical Models Incorporating Interspecific Variation in Relation to Life History Traits. Biogeosciences 16, 847–62 (2019).</p>
+</div>
+<div class="small">
+<p>There is a power-law relationship (<span class="math inline">\(y = ax^b\)</span>) between tree diameter (DBH) and crown area, and the power-law exponent varies among species. Those relationships depend on wood density.</p>
+<ul>
+<li><p>Model crown area as a function of DBH (individual-level).</p></li>
+<li><p>Model the coefficient <em>b</em> as a function of wood density (group-level).</p></li>
+</ul>
+</div>
+
+<img data-src="figure/unnamed-chunk-7-1.png" width="1440" class="r-stretch quarto-figure-center"></section>
+<section id="multilevel-model-mle-non-verbal-dummy-model-1" class="slide level2">
+<h2>Multilevel model (MLE: non-verbal ‘dummy’ model 1)</h2>
+<h3 id="individual-level-model-glmm">Individual-level model: GLMM</h3>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>fit <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
-<span id="cb5-2"><a href="#cb5-2"></a>   <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  (<span class="dv">1</span> <span class="sc">|</span> sp),</span>
-<span id="cb5-3"><a href="#cb5-3"></a>   <span class="at">data =</span> dummy_simple, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>fit_ind <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  cons <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> cons <span class="sc">|</span> sp),</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="at">data =</span> dummy, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We need to extract the slope coefficients for each species from <code>fit_ind</code> and make <code>new_data</code>.</p>
+<div class="fragment">
+<!-- -->
+<h3 id="group-level-model-lm">Group-level model: LM</h3>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>fit_gr <span class="ot">&lt;-</span> <span class="fu">lm</span>(slope_coef <span class="sc">~</span>  abund, <span class="at">data =</span> new_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </div>
 <div>
 <ul>
-<li class="fragment">Not that simple</li>
+<li class="fragment">This often returns wrong estimates</li>
 </ul>
 </div>
 </section>
-<section id="multilevel-model-non-verbal-model" class="slide level2">
-<h2>Multilevel model (non-verbal model) 🤢</h2>
+<section id="multilevel-model-mle-non-verbal-dummy-model-2" class="slide level2">
+<h2>Multilevel model (MLE: non-verbal ‘dummy’ model 2)</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>fit_all <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  cons <span class="sc">+</span> abund <span class="sc">+</span> cons<span class="sc">:</span>abund <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> cons <span class="sc">|</span> sp),</span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="at">data =</span> dummy, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div>
+<ul>
+<li class="fragment">This doesn’t work for complicated models</li>
+</ul>
+</div>
+</section>
+<section id="multilevel-model-bayes-non-verbal-model" class="slide level2">
+<h2>Multilevel model (Bayes: non-verbal model) 🤢</h2>
 <div class="footer">
 <p>Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. &amp; Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010).</p>
 </div>
 <div class="columns">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center" data-output.var="mv_logistic" data-file="/Users/mattocci/Dropbox/Education/bayes/stan/mv_logistic.stan">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource stan number-lines code-with-copy"><code class="sourceCode stan"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">data</span>{</span>
-<span id="cb6-2"><a href="#cb6-2"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; N; <span class="co">// number of samples</span></span>
-<span id="cb6-3"><a href="#cb6-3"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; J; <span class="co">// number of sp</span></span>
-<span id="cb6-4"><a href="#cb6-4"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; K; <span class="co">// number of tree-level preditors (i.e, CONS, HETS,...)</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; L; <span class="co">// number of sp-level predictors (i.e., interecept, SLA,...)</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>  <span class="dt">matrix</span>[N, K] x; <span class="co">// tree-level predictor</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a>  <span class="dt">matrix</span>[L, J] u; <span class="co">// sp-level predictor</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a>  <span class="dt">array</span>[N] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>, <span class="kw">upper</span>=<span class="dv">1</span>&gt; suv; <span class="co">// 1 or 0</span></span>
-<span id="cb6-9"><a href="#cb6-9"></a>  <span class="dt">array</span>[N] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>, <span class="kw">upper</span>=J&gt; sp; <span class="co">// integer</span></span>
-<span id="cb6-10"><a href="#cb6-10"></a>}</span>
-<span id="cb6-11"><a href="#cb6-11"></a></span>
-<span id="cb6-12"><a href="#cb6-12"></a><span class="kw">parameters</span>{</span>
-<span id="cb6-13"><a href="#cb6-13"></a>  <span class="dt">matrix</span>[K, L] gamma;</span>
-<span id="cb6-14"><a href="#cb6-14"></a>  <span class="dt">matrix</span>[K, J] z;</span>
-<span id="cb6-15"><a href="#cb6-15"></a>  <span class="dt">cholesky_factor_corr</span>[K] L_Omega;</span>
-<span id="cb6-16"><a href="#cb6-16"></a>  <span class="dt">vector</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>, <span class="kw">upper</span>=pi() / <span class="dv">2</span>&gt;[K] tau_unif;</span>
-<span id="cb6-17"><a href="#cb6-17"></a>}</span>
-<span id="cb6-18"><a href="#cb6-18"></a></span>
-<span id="cb6-19"><a href="#cb6-19"></a><span class="kw">transformed parameters</span>{</span>
-<span id="cb6-20"><a href="#cb6-20"></a>  <span class="dt">matrix</span>[K, J] beta;</span>
-<span id="cb6-21"><a href="#cb6-21"></a>  <span class="dt">vector</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt;[K] tau;</span>
-<span id="cb6-22"><a href="#cb6-22"></a>  <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span>:K) tau[k] = <span class="fl">2.5</span> * tan(tau_unif[k]);</span>
-<span id="cb6-23"><a href="#cb6-23"></a>  beta = gamma * u + diag_pre_multiply(tau, L_Omega) * z;</span>
-<span id="cb6-24"><a href="#cb6-24"></a>}</span>
-<span id="cb6-25"><a href="#cb6-25"></a></span>
-<span id="cb6-26"><a href="#cb6-26"></a><span class="kw">model</span> {</span>
-<span id="cb6-27"><a href="#cb6-27"></a>  <span class="dt">vector</span>[N] mu;</span>
-<span id="cb6-28"><a href="#cb6-28"></a>  to_vector(z) ~ std_normal();</span>
-<span id="cb6-29"><a href="#cb6-29"></a>  L_Omega ~ lkj_corr_cholesky(<span class="dv">2</span>);</span>
-<span id="cb6-30"><a href="#cb6-30"></a>  to_vector(gamma) ~ normal(<span class="dv">0</span>, <span class="fl">2.5</span>);</span>
-<span id="cb6-31"><a href="#cb6-31"></a>  <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span>:N) {</span>
-<span id="cb6-32"><a href="#cb6-32"></a>    mu[n] = x[n, ] * beta[, sp[n]];</span>
-<span id="cb6-33"><a href="#cb6-33"></a>  }</span>
-<span id="cb6-34"><a href="#cb6-34"></a>  suv ~ bernoulli_logit(mu);</span>
-<span id="cb6-35"><a href="#cb6-35"></a>}</span>
-<span id="cb6-36"><a href="#cb6-36"></a></span>
-<span id="cb6-37"><a href="#cb6-37"></a><span class="kw">generated quantities</span> {</span>
-<span id="cb6-38"><a href="#cb6-38"></a>  <span class="dt">vector</span>[N] log_lik;</span>
-<span id="cb6-39"><a href="#cb6-39"></a>  <span class="dt">corr_matrix</span>[K] Omega;</span>
-<span id="cb6-40"><a href="#cb6-40"></a>  Omega = multiply_lower_tri_self_transpose(L_Omega);</span>
-<span id="cb6-41"><a href="#cb6-41"></a>  <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span>:N) {</span>
-<span id="cb6-42"><a href="#cb6-42"></a>    log_lik[n] = bernoulli_logit_lpmf(suv[n] | x[n, ] * beta[, sp[n]] +</span>
-<span id="cb6-43"><a href="#cb6-43"></a>      phi[plot[n]] + xi[census[n]] + psi[tag[n]]);</span>
-<span id="cb6-44"><a href="#cb6-44"></a>  }</span>
-<span id="cb6-45"><a href="#cb6-45"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource stan number-lines code-with-copy"><code class="sourceCode stan"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">data</span>{</span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; N; <span class="co">// number of samples</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; J; <span class="co">// number of sp</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; K; <span class="co">// number of tree-level preditors (i.e, CONS, HETS,...)</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; L; <span class="co">// number of sp-level predictors (i.e., interecept, SLA,...)</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>  <span class="dt">matrix</span>[N, K] x; <span class="co">// tree-level predictor</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>  <span class="dt">matrix</span>[L, J] u; <span class="co">// sp-level predictor</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a>  <span class="dt">array</span>[N] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>, <span class="kw">upper</span>=<span class="dv">1</span>&gt; suv; <span class="co">// 1 or 0</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a>  <span class="dt">array</span>[N] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>, <span class="kw">upper</span>=J&gt; sp; <span class="co">// integer</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a>}</span>
+<span id="cb10-11"><a href="#cb10-11"></a></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="kw">parameters</span>{</span>
+<span id="cb10-13"><a href="#cb10-13"></a>  <span class="dt">matrix</span>[K, L] gamma;</span>
+<span id="cb10-14"><a href="#cb10-14"></a>  <span class="dt">matrix</span>[K, J] z;</span>
+<span id="cb10-15"><a href="#cb10-15"></a>  <span class="dt">cholesky_factor_corr</span>[K] L_Omega;</span>
+<span id="cb10-16"><a href="#cb10-16"></a>  <span class="dt">vector</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>, <span class="kw">upper</span>=pi() / <span class="dv">2</span>&gt;[K] tau_unif;</span>
+<span id="cb10-17"><a href="#cb10-17"></a>}</span>
+<span id="cb10-18"><a href="#cb10-18"></a></span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="kw">transformed parameters</span>{</span>
+<span id="cb10-20"><a href="#cb10-20"></a>  <span class="dt">matrix</span>[K, J] beta;</span>
+<span id="cb10-21"><a href="#cb10-21"></a>  <span class="dt">vector</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt;[K] tau;</span>
+<span id="cb10-22"><a href="#cb10-22"></a>  <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span>:K) tau[k] = <span class="fl">2.5</span> * tan(tau_unif[k]);</span>
+<span id="cb10-23"><a href="#cb10-23"></a>  beta = gamma * u + diag_pre_multiply(tau, L_Omega) * z;</span>
+<span id="cb10-24"><a href="#cb10-24"></a>}</span>
+<span id="cb10-25"><a href="#cb10-25"></a></span>
+<span id="cb10-26"><a href="#cb10-26"></a><span class="kw">model</span> {</span>
+<span id="cb10-27"><a href="#cb10-27"></a>  <span class="dt">vector</span>[N] mu;</span>
+<span id="cb10-28"><a href="#cb10-28"></a>  to_vector(z) ~ std_normal();</span>
+<span id="cb10-29"><a href="#cb10-29"></a>  L_Omega ~ lkj_corr_cholesky(<span class="dv">2</span>);</span>
+<span id="cb10-30"><a href="#cb10-30"></a>  to_vector(gamma) ~ normal(<span class="dv">0</span>, <span class="fl">2.5</span>);</span>
+<span id="cb10-31"><a href="#cb10-31"></a>  <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span>:N) {</span>
+<span id="cb10-32"><a href="#cb10-32"></a>    mu[n] = x[n, ] * beta[, sp[n]];</span>
+<span id="cb10-33"><a href="#cb10-33"></a>  }</span>
+<span id="cb10-34"><a href="#cb10-34"></a>  suv ~ bernoulli_logit(mu);</span>
+<span id="cb10-35"><a href="#cb10-35"></a>}</span>
+<span id="cb10-36"><a href="#cb10-36"></a></span>
+<span id="cb10-37"><a href="#cb10-37"></a><span class="kw">generated quantities</span> {</span>
+<span id="cb10-38"><a href="#cb10-38"></a>  <span class="dt">vector</span>[N] log_lik;</span>
+<span id="cb10-39"><a href="#cb10-39"></a>  <span class="dt">corr_matrix</span>[K] Omega;</span>
+<span id="cb10-40"><a href="#cb10-40"></a>  Omega = multiply_lower_tri_self_transpose(L_Omega);</span>
+<span id="cb10-41"><a href="#cb10-41"></a>  <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span>:N) {</span>
+<span id="cb10-42"><a href="#cb10-42"></a>    log_lik[n] = bernoulli_logit_lpmf(suv[n] | x[n, ] * beta[, sp[n]] +</span>
+<span id="cb10-43"><a href="#cb10-43"></a>      phi[plot[n]] + xi[census[n]] + psi[tag[n]]);</span>
+<span id="cb10-44"><a href="#cb10-44"></a>  }</span>
+<span id="cb10-45"><a href="#cb10-45"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="small">
 <ul>
 <li><p><span class="math inline">\(s_{i,j} \sim \mathcal{B}(p_{i, j})\)</span>: <span class="orange">likelihood</span></p></li>
-<li><p><span class="math inline">\(\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}\)</span>: linear algebra</p></li>
-<li><p><span class="math inline">\(\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}\)</span>: linear algebra</p></li>
+<li><p><span class="math inline">\(\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}\)</span>: individual-level model</p></li>
+<li><p><span class="math inline">\(\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}\)</span>: species-level model</p></li>
 <li><p><span class="math inline">\(L \sim \mathrm{LkjCholesky}(\eta)\)</span>: <span class="blue">prior (?)</span></p></li>
 <li><p><span class="math inline">\(z_j \sim \mathcal{N}(0, 1)\)</span>: <span class="blue">prior (?)</span></p></li>
 <li><p><span class="math inline">\(\tau \sim \mathrm{Cauchy}(0, 2.5)\)</span>: <span class="blue">prior (?)</span></p></li>
@@ -762,7 +807,7 @@ P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-8-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-13-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -779,34 +824,38 @@ P(A) = \frac{A}{U}
 <section id="conditional-probability" class="slide level2">
 <h2>Conditional Probability</h2>
 <div class="columns">
-<div class="column" style="width:50%;">
+<div class="column" style="width:40%;">
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-10-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-15-1.png" width="960"></p>
 </figure>
 </div>
 </div>
 </div>
-</div><div class="column" style="width:50%;">
-<p>Probility of A ocurring given B has already occured:</p>
+</div><div class="column" style="width:60%;">
+<p>Probability of A occurring given B has already occurred:</p>
 <p><span class="math display">\[
-P(A \mid B) = \frac{A \cap B}{B} = \frac{(A \cap B)/U}{B/U} \\
-= \frac{P(A \cap B)}{P(B)}
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
 \]</span></p>
+<div>
 <p>e.g.,</p>
 <ul>
-<li>P(Cough) = 5%</li>
-<li>P(Cough | Sick) = 75%.</li>
+<li class="fragment">P(hangover) = 4%</li>
+<li class="fragment">P(hangover | beer) = 6%.</li>
+<li class="fragment">P(hangover | baiju) = 85%.</li>
 </ul>
+</div>
 </div>
 </div>
 <aside class="notes">
 <ul>
-<li>probablity A occurs given B</li>
+<li>probability A occurs given B</li>
 <li>vertical bar = given</li>
-<li>Conditional probablity that someone is coughing is higher than the probability that someone is coughing in general.</li>
+<li>at least 1 day for each month</li>
+<li>the next day after I had beer</li>
+<li>the next day after I had baiju</li>
 </ul>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -865,14 +914,6 @@ P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
 
 
 <img src="images/fip_6.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
-<section class="slide level2">
-
-
-<img src="images/fip_7.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
-<section class="slide level2">
-
-
-<img src="images/fip_8.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
 <section id="forward-and-inverse-problems" class="slide level2">
 <h2>Forward and Inverse Problems</h2>
 <div class="columns">
@@ -882,11 +923,11 @@ P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
 <li class="fragment"><p>X: 3 red balls, 5 white balls</p></li>
 <li class="fragment"><p>Y: 1 red balls, 3 white balls</p></li>
 <li class="fragment"><p>Randomly choose a bag X or Y</p></li>
-<li class="fragment"><p><span class="math inline">\(P(A)\)</span>: <span class="blue">Probability of choosing X</span></p></li>
-<li class="fragment"><p><span class="math inline">\(P(B)\)</span>: <span class="blue">Probability of drawing a red ball</span></p></li>
-<li class="fragment"><p><span class="math inline">\(P(A \cap B)\)</span>: <span class="blue">Probability of choosing X and drawing a red ball</span></p></li>
-<li class="fragment"><p><span class="math inline">\(P(B \mid A)\)</span>: <span class="blue">Probability of drawing a red ball when you chose X</span></p></li>
-<li class="fragment"><p><span class="math inline">\(P(A \mid B)\)</span>: <span class="orange">Probability that you atually chose X, when you got a red ball</span></p></li>
+<li class="fragment"><p><span class="math inline">\(P(A)\)</span>: <span class="blue">Choosing X</span></p></li>
+<li class="fragment"><p><span class="math inline">\(P(B)\)</span>: <span class="blue">Drawing a red ball</span></p></li>
+<li class="fragment"><p><span class="math inline">\(P(B \mid A)\)</span>: <span class="blue">Getting a red ball from X</span></p></li>
+<li class="fragment"><p><span class="math inline">\(P(A \cap B)\)</span>: <span class="blue">Choosing X and drawing a red ball</span></p></li>
+<li class="fragment"><p><span class="math inline">\(P(A \mid B)\)</span>: <span class="orange">Picked X, because you got a red ball(?)</span></p></li>
 </ul>
 </div>
 </div><div class="column" style="width:50%;">
@@ -932,7 +973,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <ul>
 <li class="fragment"><p><span class="math inline">\(P(\mathrm{Parameter} \mid \mathrm{Data})\)</span></p>
 <ul>
-<li class="fragment">When you got your data, what were the parameters behind the data (e.g., coefficients of regressoins)?</li>
+<li class="fragment">When you got your data, what were the parameters behind the data (e.g., coefficients of regressions)?</li>
 </ul></li>
 <li class="fragment"><p><span class="math inline">\(P(\mathrm{Data} \mid \mathrm{Parameter})\)</span></p>
 <ul>
@@ -940,7 +981,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 </ul></li>
 <li class="fragment"><p><span class="math inline">\(P(\mathrm{Parameter})\)</span></p>
 <ul>
-<li class="fragment">Probaility to get your parameters (i.e., <strong>prior</strong>)</li>
+<li class="fragment">Probability to get your parameters. This is what you assume for your parameter before you see any data (i.e., <strong>prior</strong>).</li>
 </ul></li>
 <li class="fragment"><p><span class="math inline">\(P(\mathrm{Data})\)</span></p>
 <ul>
@@ -958,7 +999,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <section id="prior" class="title-slide slide level1 center">
 <h1>Prior</h1>
 
-<img data-src="figure/unnamed-chunk-11-1.png" width="960" class="r-stretch quarto-figure-center"></section>
+<img data-src="figure/unnamed-chunk-16-1.png" width="960" class="r-stretch quarto-figure-center"></section>
 <section id="prior-coins" class="slide level2">
 <h2>Prior (coins)</h2>
 <h3 id="mle">MLE</h3>
@@ -983,7 +1024,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-12-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-17-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1001,7 +1042,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <li class="fragment"><p><span class="math inline">\(Post_A \propto p^2 (1-p)^1 \times p^{50} (1-p)^{50}\)</span></p>
 <ul>
 <li class="fragment"><p><span class="math inline">\(Post_A \propto p^{52} (1-p)^{51}\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(Post_A' = 52p^{51}(1-p)^{51}- \\ 51p^{52}(1-p)^{50}\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(Post_A' = 52p^{51}(1-p)^{51}-\)</span> <span class="math inline">\(51p^{52}(1-p)^{50}\)</span></p></li>
 <li class="fragment"><p>p = 52/103 = 0.5048</p></li>
 </ul></li>
 <li class="fragment"><p><span class="math inline">\(Post_B \propto p^{60} (1-p)^{40} \times p^{50} (1-p)^{50}\)</span></p>
@@ -1017,7 +1058,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <li class="fragment"><span class="math inline">\(Like_B\)</span>: 60 heads out of 100 tosses</li>
 <li class="fragment"><span class="math inline">\(Prior_B\)</span>: P(H) is about 50%, a reasonable assumption based on existing knowledge of coins</li>
 <li class="fragment"><span class="math inline">\(Post_B\)</span>: P(H) is likely between 50% and 60% (55% in this example)</li>
-<li class="fragment"><strong>We usually have some sense of a scale about parameters, we can legally use that information</strong></li>
+<li class="fragment">We usually have some sense of a scale about parameters, we can legally use that information</li>
 </ul>
 </div>
 </div>
@@ -1037,7 +1078,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-13-1.png" width="576"></p>
+<p><img data-src="figure/unnamed-chunk-18-1.png" width="480"></p>
 </figure>
 </div>
 </div>
@@ -1051,16 +1092,16 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <li>However, given the similar scales of <em>x</em> and <em>y</em>, it’s reasonable to guess that <em>a</em> falls within a narrow range (-1000 &lt; <em>a</em> &lt; 1000 or -5 &lt; <em>a</em> &lt; 5 ?).</li>
 </ul>
 
-<img data-src="figure/unnamed-chunk-14-1.png" width="1728" class="r-stretch quarto-figure-center"></section>
-<section id="priors-and-ecology-group-level-differences" class="slide level2">
-<h2>Priors and ecology (group-level differences)</h2>
+<img data-src="figure/unnamed-chunk-19-1.png" width="1728" class="r-stretch quarto-figure-center"></section>
+<section id="priors-and-ecology-multilevel-model-group-level-differences" class="slide level2">
+<h2>Priors and ecology (multilevel model: group-level differences)</h2>
 <div class="columns">
 <div class="column" style="width:40%;">
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-15-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-20-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1070,7 +1111,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <ul>
 <li class="fragment"><span class="math inline">\(y_i = ax_i + b_j\)</span>
 <ul>
-<li class="fragment">If the parameter <span class="math inline">\(b_j\)</span> is similar within each group (e.g., species difference):</li>
+<li class="fragment">If the parameter <span class="math inline">\(b_j\)</span> is similar within each group (e.g., species differences, site differences):</li>
 <li class="fragment">Likelihood: <span class="math inline">\(y_i \sim \mathcal{N}(ax_i + b_j, \sigma)\)</span></li>
 <li class="fragment">Prior: <span class="math inline">\(b_j \sim \mathcal{N}(\mu_b, \tau)\)</span></li>
 </ul></li>
@@ -1079,19 +1120,20 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 </div>
 </div>
 </section>
-<section id="priors-and-ecology-autocorealtion" class="slide level2">
-<h2>Priors and ecology (autocorealtion)</h2>
+<section id="priors-and-ecology-multilevel-model-autocorealtion" class="slide level2">
+<h2>Priors and ecology (multilevel model: autocorealtion)</h2>
 <div class="columns">
-<div class="column" style="width:35%;">
+<div class="column" style="width:30%;">
 <p><img data-src="images/spatial.png"></p>
-</div><div class="column" style="width:65%;">
+</div><div class="column" style="width:70%;">
+<ul>
+<li>If the data <span class="math inline">\(y_i\)</span> is similar to the surrounding samples (e.g., spatial autocorrelation):</li>
+</ul>
 <div>
 <ul>
-<li class="fragment">If the data <span class="math inline">\(y_i\)</span> is similar to the surrounding samples (e.g., spatial autocorrelation):
-<ul>
 <li class="fragment">Likelihood: <span class="math inline">\(y_i \sim \mathcal{N}(\mu + \tilde{r_i}, \sigma)\)</span></li>
-<li class="fragment">Prior: <span class="math inline">\(\tilde{r_i} = r_{m, n} \sim \mathcal{N}((r_{m-1, n-1} + r_{m, n-1} + r_{m+1, n-1} \\+ r_{m-1, n} +r_{m+1, n} \\ + r_{m+1, n-1} +r_{m+1, n} + r_{m+1, n+1})/8, \tau)\)</span></li>
-</ul></li>
+<li class="fragment">Prior: <span class="math inline">\(\tilde{r_i} = r_{m, n} \sim \mathcal{N}(\phi_{m,n}, \tau)\)</span></li>
+<li class="fragment"><span class="math inline">\(\phi_{m,n} = (r_{m-1, n-1} + r_{m, n-1} + r_{m+1, n-1} +\)</span> <span class="math inline">\(r_{m-1, n} + r_{m+1, n} +\)</span> <span class="math inline">\(r_{m+1, n-1} + r_{m+1, n} + r_{m+1, n+1})/8\)</span></li>
 </ul>
 </div>
 </div>
@@ -1223,7 +1265,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 </div>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">sum</span>(dummy_simple<span class="sc">$</span>suv) <span class="sc">/</span> <span class="fu">sum</span>(dummy_simple<span class="sc">$</span>n)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">sum</span>(dummy_simple<span class="sc">$</span>suv) <span class="sc">/</span> <span class="fu">sum</span>(dummy_simple<span class="sc">$</span>n)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  [1] 0.2840467</code></pre>
 </div>
@@ -1231,7 +1273,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 </div>
 <div>
 <ul>
-<li class="fragment">If we pool all the data, survival rate will be about 0.284</li>
+<li class="fragment">If we pool all the data, the survival rate will be about 0.284</li>
 </ul>
 </div>
 </div>
@@ -1403,8 +1445,8 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <ul>
 <li class="fragment"><p><code>p_true</code> ranges [0.23, 0.36]</p></li>
 <li class="fragment"><p><code>p_like</code> ranges [0.19, 0.5]</p></li>
-<li class="fragment"><p>The estimate shows larger variation</p></li>
-<li class="fragment"><p>Because of the small sample size</p></li>
+<li class="fragment"><p>The estimate shows the larger variation</p></li>
+<li class="fragment"><p>Because of the small sample size (common in ecological studies)</p></li>
 </ul>
 </div>
 </div>
@@ -1413,7 +1455,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-21-1.png" width="672"></p>
+<p><img data-src="figure/unnamed-chunk-26-1.png" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1437,6 +1479,9 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+<div class="footer">
+<p>We know <code>p_true</code> because we generated this data using <code>p_true</code> as a known parameter. In practical scenarios, we don’t know <code>p_true</code>.</p>
+</div>
 </section>
 <section id="two-extreme-cases-pooled-estimates" class="slide level2">
 <h2>Two extreme cases (pooled estimates)</h2>
@@ -1487,14 +1532,14 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <img src="images/multilevel.png" width="80%" style="display: block; margin: auto;" class="r-stretch"></section>
 <section id="sigma-determines-species-variation" class="slide level2">
 <h2><span class="math inline">\(\sigma\)</span> determines species variation</h2>
-<p>When the overall survival rate is 0.5.</p>
+<p>The overall survival rate is 0.5 in this example. We have some sense of a scale for <span class="math inline">\(\sigma\)</span>.</p>
 <div class="columns">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-22-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-27-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1505,19 +1550,14 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-23-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-28-1.png" width="960"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <div>
-<ul>
-<li class="fragment">We have some sense of a scale for <span class="math inline">\(\sigma\)</span></li>
-<li class="fragment"><code>logistic(0.3) - 0.5</code> = 0.074</li>
-<li class="fragment"><code>logistic(3) - 0.5</code> = 0.453</li>
-<li class="fragment"><code>logistic(10) - 0.5</code> = 0.49995</li>
-</ul>
+
 </div>
 </div>
 </div>
@@ -1546,38 +1586,38 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="columns">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center" data-output.var="simple_logistic" data-file="/Users/mattocci/Dropbox/Education/bayes/stan/logistic.stan">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource stan number-lines code-with-copy"><code class="sourceCode stan"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">data</span> {</span>
-<span id="cb9-2"><a href="#cb9-2"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; I; <span class="co">// number of species</span></span>
-<span id="cb9-3"><a href="#cb9-3"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; suv; <span class="co">// number of survivors</span></span>
-<span id="cb9-4"><a href="#cb9-4"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; N; <span class="co">// number of individuals</span></span>
-<span id="cb9-5"><a href="#cb9-5"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>, <span class="kw">upper</span>=I&gt; ii; <span class="co">// integer</span></span>
-<span id="cb9-6"><a href="#cb9-6"></a>}</span>
-<span id="cb9-7"><a href="#cb9-7"></a></span>
-<span id="cb9-8"><a href="#cb9-8"></a><span class="kw">parameters</span> {</span>
-<span id="cb9-9"><a href="#cb9-9"></a>  <span class="dt">real</span> mu;</span>
-<span id="cb9-10"><a href="#cb9-10"></a>  <span class="dt">real</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; sigma;</span>
-<span id="cb9-11"><a href="#cb9-11"></a>  <span class="dt">vector</span>[I] z_tilde;</span>
-<span id="cb9-12"><a href="#cb9-12"></a>}</span>
-<span id="cb9-13"><a href="#cb9-13"></a></span>
-<span id="cb9-14"><a href="#cb9-14"></a><span class="kw">transformed parameters</span> {</span>
-<span id="cb9-15"><a href="#cb9-15"></a>  <span class="dt">vector</span>[I] z;</span>
-<span id="cb9-16"><a href="#cb9-16"></a>  z = mu + sigma * z_tilde;</span>
-<span id="cb9-17"><a href="#cb9-17"></a>}</span>
-<span id="cb9-18"><a href="#cb9-18"></a></span>
-<span id="cb9-19"><a href="#cb9-19"></a><span class="kw">model</span> {</span>
-<span id="cb9-20"><a href="#cb9-20"></a>  mu ~ normal(<span class="dv">0</span>, <span class="dv">5</span>);</span>
-<span id="cb9-21"><a href="#cb9-21"></a>  z_tilde ~ std_normal();</span>
-<span id="cb9-22"><a href="#cb9-22"></a>  sigma ~ std_normal();</span>
-<span id="cb9-23"><a href="#cb9-23"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span>:I)</span>
-<span id="cb9-24"><a href="#cb9-24"></a>    suv[i] ~ binomial_logit(N[i], z[ii[i]]);</span>
-<span id="cb9-25"><a href="#cb9-25"></a>}</span>
-<span id="cb9-26"><a href="#cb9-26"></a></span>
-<span id="cb9-27"><a href="#cb9-27"></a><span class="kw">generated quantities</span> {</span>
-<span id="cb9-28"><a href="#cb9-28"></a>  <span class="dt">vector</span>[I] log_lik;</span>
-<span id="cb9-29"><a href="#cb9-29"></a>  <span class="dt">vector</span>[I] p = inv_logit(z);</span>
-<span id="cb9-30"><a href="#cb9-30"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span>:I)</span>
-<span id="cb9-31"><a href="#cb9-31"></a>    log_lik[i] = binomial_logit_lpmf(suv[i] | N[i], z[ii[i]]);</span>
-<span id="cb9-32"><a href="#cb9-32"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource stan number-lines code-with-copy"><code class="sourceCode stan"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">data</span> {</span>
+<span id="cb13-2"><a href="#cb13-2"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; I; <span class="co">// number of species</span></span>
+<span id="cb13-3"><a href="#cb13-3"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; suv; <span class="co">// number of survivors</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; N; <span class="co">// number of individuals</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>, <span class="kw">upper</span>=I&gt; ii; <span class="co">// integer</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a>}</span>
+<span id="cb13-7"><a href="#cb13-7"></a></span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="kw">parameters</span> {</span>
+<span id="cb13-9"><a href="#cb13-9"></a>  <span class="dt">real</span> mu;</span>
+<span id="cb13-10"><a href="#cb13-10"></a>  <span class="dt">real</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; sigma;</span>
+<span id="cb13-11"><a href="#cb13-11"></a>  <span class="dt">vector</span>[I] z_tilde;</span>
+<span id="cb13-12"><a href="#cb13-12"></a>}</span>
+<span id="cb13-13"><a href="#cb13-13"></a></span>
+<span id="cb13-14"><a href="#cb13-14"></a><span class="kw">transformed parameters</span> {</span>
+<span id="cb13-15"><a href="#cb13-15"></a>  <span class="dt">vector</span>[I] z;</span>
+<span id="cb13-16"><a href="#cb13-16"></a>  z = mu + sigma * z_tilde;</span>
+<span id="cb13-17"><a href="#cb13-17"></a>}</span>
+<span id="cb13-18"><a href="#cb13-18"></a></span>
+<span id="cb13-19"><a href="#cb13-19"></a><span class="kw">model</span> {</span>
+<span id="cb13-20"><a href="#cb13-20"></a>  mu ~ normal(<span class="dv">0</span>, <span class="dv">5</span>);</span>
+<span id="cb13-21"><a href="#cb13-21"></a>  z_tilde ~ std_normal();</span>
+<span id="cb13-22"><a href="#cb13-22"></a>  sigma ~ std_normal();</span>
+<span id="cb13-23"><a href="#cb13-23"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span>:I)</span>
+<span id="cb13-24"><a href="#cb13-24"></a>    suv[i] ~ binomial_logit(N[i], z[ii[i]]);</span>
+<span id="cb13-25"><a href="#cb13-25"></a>}</span>
+<span id="cb13-26"><a href="#cb13-26"></a></span>
+<span id="cb13-27"><a href="#cb13-27"></a><span class="kw">generated quantities</span> {</span>
+<span id="cb13-28"><a href="#cb13-28"></a>  <span class="dt">vector</span>[I] log_lik;</span>
+<span id="cb13-29"><a href="#cb13-29"></a>  <span class="dt">vector</span>[I] p = inv_logit(z);</span>
+<span id="cb13-30"><a href="#cb13-30"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span>:I)</span>
+<span id="cb13-31"><a href="#cb13-31"></a>    log_lik[i] = binomial_logit_lpmf(suv[i] | N[i], z[ii[i]]);</span>
+<span id="cb13-32"><a href="#cb13-32"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div><div class="column" style="width:50%;">
 <h3 id="centered-parameterization">Centered parameterization</h3>
@@ -1688,15 +1728,15 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figure/unnamed-chunk-26-1.png" width="960"></p>
+<p><img data-src="figure/unnamed-chunk-31-1.png" width="960"></p>
 </figure>
 </div>
 </div>
 </div>
 <div>
 <ul>
-<li class="fragment"><p>Closed symbols (<code class="small">p_bayes</code>) came closer to the 1:1 line.</p></li>
-<li class="fragment"><p>This model uses a <strong>prior</strong> knowledge that species responses are some how similar and compensates the small data.</p></li>
+<li class="fragment"><p>Closed symbols (<code class="small">p_bayes</code>) align more closely with the 1:1 line, indicating more accurate estimates.</p></li>
+<li class="fragment"><p>This model compensates for limited data by using <strong>prior</strong> knowledge that species responses are somehow similar and compensates for limited data.</p></li>
 </ul>
 </div>
 </div>
@@ -1724,45 +1764,45 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="column" style="width:50%;">
 <p>Bayesian estimation (<code>stan</code>)</p>
 <div class="cell" data-layout-align="center" data-output.var="simple_logistic" data-file="/Users/mattocci/Dropbox/Education/bayes/stan/logistic.stan">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource stan number-lines code-with-copy"><code class="sourceCode stan"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">data</span> {</span>
-<span id="cb10-2"><a href="#cb10-2"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; I; <span class="co">// number of species</span></span>
-<span id="cb10-3"><a href="#cb10-3"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; suv; <span class="co">// number of survivors</span></span>
-<span id="cb10-4"><a href="#cb10-4"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; N; <span class="co">// number of individuals</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>, <span class="kw">upper</span>=I&gt; ii; <span class="co">// integer</span></span>
-<span id="cb10-6"><a href="#cb10-6"></a>}</span>
-<span id="cb10-7"><a href="#cb10-7"></a></span>
-<span id="cb10-8"><a href="#cb10-8"></a><span class="kw">parameters</span> {</span>
-<span id="cb10-9"><a href="#cb10-9"></a>  <span class="dt">real</span> mu;</span>
-<span id="cb10-10"><a href="#cb10-10"></a>  <span class="dt">real</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; sigma;</span>
-<span id="cb10-11"><a href="#cb10-11"></a>  <span class="dt">vector</span>[I] z_tilde;</span>
-<span id="cb10-12"><a href="#cb10-12"></a>}</span>
-<span id="cb10-13"><a href="#cb10-13"></a></span>
-<span id="cb10-14"><a href="#cb10-14"></a><span class="kw">transformed parameters</span> {</span>
-<span id="cb10-15"><a href="#cb10-15"></a>  <span class="dt">vector</span>[I] z;</span>
-<span id="cb10-16"><a href="#cb10-16"></a>  z = mu + sigma * z_tilde;</span>
-<span id="cb10-17"><a href="#cb10-17"></a>}</span>
-<span id="cb10-18"><a href="#cb10-18"></a></span>
-<span id="cb10-19"><a href="#cb10-19"></a><span class="kw">model</span> {</span>
-<span id="cb10-20"><a href="#cb10-20"></a>  mu ~ normal(<span class="dv">0</span>, <span class="dv">5</span>);</span>
-<span id="cb10-21"><a href="#cb10-21"></a>  z_tilde ~ std_normal();</span>
-<span id="cb10-22"><a href="#cb10-22"></a>  sigma ~ std_normal();</span>
-<span id="cb10-23"><a href="#cb10-23"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span>:I)</span>
-<span id="cb10-24"><a href="#cb10-24"></a>    suv[i] ~ binomial_logit(N[i], z[ii[i]]);</span>
-<span id="cb10-25"><a href="#cb10-25"></a>}</span>
-<span id="cb10-26"><a href="#cb10-26"></a></span>
-<span id="cb10-27"><a href="#cb10-27"></a><span class="kw">generated quantities</span> {</span>
-<span id="cb10-28"><a href="#cb10-28"></a>  <span class="dt">vector</span>[I] log_lik;</span>
-<span id="cb10-29"><a href="#cb10-29"></a>  <span class="dt">vector</span>[I] p = inv_logit(z);</span>
-<span id="cb10-30"><a href="#cb10-30"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span>:I)</span>
-<span id="cb10-31"><a href="#cb10-31"></a>    log_lik[i] = binomial_logit_lpmf(suv[i] | N[i], z[ii[i]]);</span>
-<span id="cb10-32"><a href="#cb10-32"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource stan number-lines code-with-copy"><code class="sourceCode stan"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">data</span> {</span>
+<span id="cb14-2"><a href="#cb14-2"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; I; <span class="co">// number of species</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; suv; <span class="co">// number of survivors</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; N; <span class="co">// number of individuals</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>  <span class="dt">array</span>[I] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>, <span class="kw">upper</span>=I&gt; ii; <span class="co">// integer</span></span>
+<span id="cb14-6"><a href="#cb14-6"></a>}</span>
+<span id="cb14-7"><a href="#cb14-7"></a></span>
+<span id="cb14-8"><a href="#cb14-8"></a><span class="kw">parameters</span> {</span>
+<span id="cb14-9"><a href="#cb14-9"></a>  <span class="dt">real</span> mu;</span>
+<span id="cb14-10"><a href="#cb14-10"></a>  <span class="dt">real</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; sigma;</span>
+<span id="cb14-11"><a href="#cb14-11"></a>  <span class="dt">vector</span>[I] z_tilde;</span>
+<span id="cb14-12"><a href="#cb14-12"></a>}</span>
+<span id="cb14-13"><a href="#cb14-13"></a></span>
+<span id="cb14-14"><a href="#cb14-14"></a><span class="kw">transformed parameters</span> {</span>
+<span id="cb14-15"><a href="#cb14-15"></a>  <span class="dt">vector</span>[I] z;</span>
+<span id="cb14-16"><a href="#cb14-16"></a>  z = mu + sigma * z_tilde;</span>
+<span id="cb14-17"><a href="#cb14-17"></a>}</span>
+<span id="cb14-18"><a href="#cb14-18"></a></span>
+<span id="cb14-19"><a href="#cb14-19"></a><span class="kw">model</span> {</span>
+<span id="cb14-20"><a href="#cb14-20"></a>  mu ~ normal(<span class="dv">0</span>, <span class="dv">5</span>);</span>
+<span id="cb14-21"><a href="#cb14-21"></a>  z_tilde ~ std_normal();</span>
+<span id="cb14-22"><a href="#cb14-22"></a>  sigma ~ std_normal();</span>
+<span id="cb14-23"><a href="#cb14-23"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span>:I)</span>
+<span id="cb14-24"><a href="#cb14-24"></a>    suv[i] ~ binomial_logit(N[i], z[ii[i]]);</span>
+<span id="cb14-25"><a href="#cb14-25"></a>}</span>
+<span id="cb14-26"><a href="#cb14-26"></a></span>
+<span id="cb14-27"><a href="#cb14-27"></a><span class="kw">generated quantities</span> {</span>
+<span id="cb14-28"><a href="#cb14-28"></a>  <span class="dt">vector</span>[I] log_lik;</span>
+<span id="cb14-29"><a href="#cb14-29"></a>  <span class="dt">vector</span>[I] p = inv_logit(z);</span>
+<span id="cb14-30"><a href="#cb14-30"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span>:I)</span>
+<span id="cb14-31"><a href="#cb14-31"></a>    log_lik[i] = binomial_logit_lpmf(suv[i] | N[i], z[ii[i]]);</span>
+<span id="cb14-32"><a href="#cb14-32"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div><div class="column" style="width:50%;">
 <p>MLE (<code>lme4::glmer</code>)</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>fit <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
-<span id="cb11-2"><a href="#cb11-2"></a>   <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  (<span class="dv">1</span> <span class="sc">|</span> sp),</span>
-<span id="cb11-3"><a href="#cb11-3"></a>   <span class="at">data =</span> dummy_simple, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>fit <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb15-2"><a href="#cb15-2"></a>   <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  (<span class="dv">1</span> <span class="sc">|</span> sp),</span>
+<span id="cb15-3"><a href="#cb15-3"></a>   <span class="at">data =</span> dummy_simple, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div>
 <ul>
@@ -1799,7 +1839,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <li class="fragment"><p>An analytical solution is often not available (this example is easy though)</p></li>
 </ul>
 <h3 id="bayesian-estimation">Bayesian estimation</h3>
-<p><span class="math inline">\(P(\mu, \sigma \mid S_i, N_i) \propto \prod_i \mathcal{B}(S_i \mid N_i, p_i) \times \prod_i \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) \times \\ \mathcal{N}(\mu \mid 0, 5) \times \mathcal{N}(\sigma \mid 0, 1)\)</span></p>
+<p><span class="math inline">\(P(\mu, \sigma \mid S_i, N_i) \propto \prod_i \mathcal{B}(S_i \mid N_i, p_i) \times \prod_i \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) \times\)</span> <span class="math inline">\(\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\mathcal{N}(\mu \mid 0, 5) \times \mathcal{N}(\sigma \mid 0, 2.5)\)</span></p>
 <ul>
 <li class="fragment"><p>Numerically find <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> to maximize <span class="math inline">\(P\)</span> (aka MCMC)</p></li>
 <li class="fragment"><p>MCMC works even if an analytical solution is not available</p></li>
@@ -2039,7 +2079,7 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
