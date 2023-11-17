@@ -1323,19 +1323,29 @@ dummy_simple_re |>
 ::: {.column width="50%"}
 
 ```{r, fig.height=6}
-ggplot(dummy_simple_re, aes(x = p_true)) +
-  geom_jitter(aes(y = p_like), size = 12, pch = 21, width = 0.002) +
-  geom_jitter(aes(y = p_bayes), size = 12, pch = 16, width = 0.002) +
-  annotate(geom = "text", x = 0.34, y = 0.38, label = "1:1", size = 10, angle = 18) +
-  geom_abline(slope = 1, intercept = 0, lty = 2) +
-  xlab("True survival rate") +
-  ylab("Estimated \nsurvival rate")
+dummy_simple_re |>
+  pivot_longer(c(p_like, p_bayes)) |>
+  ggplot(aes(x = p_true, y = value, fill = name)) +
+    # geom_jitter(size = 12, pch = 21, width = 0.001, alpha = 0.8) +
+    geom_point(size = 12, pch = 21, alpha = 0.8) +
+    annotate(geom = "text", x = 0.34, y = 0.38, label = "1:1", size = 10, angle = 18) +
+    geom_abline(slope = 1, intercept = 0, lty = 2) +
+    xlab("True survival rate") +
+    ylab("Estimated \nsurvival rate") +
+    theme(
+      legend.position = c(0.2, 0.75),
+      legend.text = element_text(size = 24),
+      legend.title = element_blank(),
+      legend.box.background = element_rect(color = "grey40", size = 1)
+    )
 ```
 
+::: small
 ::: incremental
 - Closed symbols (`p_bayes`{.small}) align more closely with the 1:1 line, indicating more accurate estimates.
 
 - This model compensates for limited data by using **prior** knowledge that species responses are somehow similar and compensates for limited data.
+:::
 :::
 
 :::
