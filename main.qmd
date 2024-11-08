@@ -1,7 +1,7 @@
 ---
 pagetitle: "Bayesian estimation for ecology"
 author: "Masatoshi Katabuchi"
-date: "November 17, 2023"
+date: "November 10, 2024"
 host: "XTBG AFEC"
 institute: "XTBG, CAS"
 strip-comments: true
@@ -126,9 +126,9 @@ $f(x \mid \mu, \sigma) = \frac{1}{\sqrt{2\pi\sigma^2}}\mathrm{exp} \bigl[{-\frac
 :::
 ::: {.column width=60%}
 ::: incremental
-- A likelihood function is a probability density (mass) function of parameters and data, and it indicates the probability of observing the data for a given set of parameters.
+- A likelihood function is a probability function that shows how likely it is to observe the data for a specific set of parameters.
 
-- e.g., when your model is $x \sim \mathcal{N}(\mu = 0, \sigma^2 = 1)$ (normal distribution with mean 0 and variance 1), what is the probability of observing x = 1.96?
+- e.g., when your model is $x \sim \mathcal{N}(\mu = 0, \sigma^2 = 1)$ (normal distribution with mean 0 and variance 1), what is the probability density at x = 1.96?
 :::
 
 ::: fragment
