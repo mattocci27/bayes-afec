@@ -693,7 +693,7 @@
 </div>
 <div>
 <ul>
-<li class="fragment">This often returns wrong estimates</li>
+<li class="fragment">This method have low statistical power</li>
 </ul>
 </div>
 </section>
@@ -1787,7 +1787,8 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>fit <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
 <span id="cb15-2"><a href=""></a>   <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  (<span class="dv">1</span> <span class="sc">|</span> sp),</span>
-<span id="cb15-3"><a href=""></a>   <span class="at">data =</span> dummy_simple, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-3"><a href=""></a>   <span class="at">data =</span> dummy_simple,</span>
+<span id="cb15-4"><a href=""></a>   <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div>
 <ul>
@@ -1814,6 +1815,45 @@ P(\mathrm{Parameter} \mid \mathrm{Data}) = \frac{P(\mathrm{Data} \mid \mathrm{Pa
       }</style></aside>
 </section>
 <section id="mle-vs.-bayesian-estimation-1" class="slide level2">
+<h2>MLE vs.&nbsp;Bayesian estimation</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p>Bayesian estimation (<code>brms</code>)</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a>fit <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">brm</span>(</span>
+<span id="cb16-2"><a href=""></a>  suv <span class="sc">|</span> <span class="fu">trials</span>(n) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> sp),</span>
+<span id="cb16-3"><a href=""></a>  <span class="at">data =</span> dummy_simple,</span>
+<span id="cb16-4"><a href=""></a>  <span class="at">family =</span> <span class="fu">binomial</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div><div class="column" style="width:50%;">
+<p>MLE (<code>lme4::glmer</code>)</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a>fit <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb17-2"><a href=""></a>   <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  (<span class="dv">1</span> <span class="sc">|</span> sp),</span>
+<span id="cb17-3"><a href=""></a>   <span class="at">data =</span> dummy_simple,</span>
+<span id="cb17-4"><a href=""></a>   <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div></div>
+<ul>
+<li>Several packages, like <code>brms</code> and <code>rstanarm</code>, offer Bayesian estimation using syntax similar to <code>lme4</code>.</li>
+</ul>
+<aside class="notes">
+<ul>
+<li>You need to rely on functions, such as <code>lme4::glmer</code>.</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="mle-vs.-bayesian-estimation-2" class="slide level2">
 <h2>MLE vs.&nbsp;Bayesian estimation</h2>
 <div>
 <h3 id="mle-e.g.-lme4">MLE (e.g., <code class="small">lme4</code>)</h3>

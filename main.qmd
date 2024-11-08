@@ -434,7 +434,7 @@ fit_gr <- lm(slope_coef ~  abund, data = new_data)
 :::
 
 ::: incremental
-- This often returns wrong estimates
+- This method have low statistical power
 :::
 
 ---
@@ -1375,7 +1375,8 @@ MLE (`lme4::glmer`)
 ```{r, echo=TRUE}
 fit <- lme4::glmer(
    cbind(suv, n - suv) ~  (1 | sp),
-   data = dummy_simple, family = binomial)
+   data = dummy_simple,
+   family = binomial)
 ```
 ::: incremental
 - We can do MLE for these kind of simple models.
@@ -1390,6 +1391,40 @@ fit <- lme4::glmer(
 :::
 
 ---
+
+## MLE vs. Bayesian estimation
+
+::: columns
+::: {.column width="50%"}
+
+Bayesian estimation (`brms`)
+```{r, echo=TRUE, eval=FALSE}
+fit <- brms::brm(
+  suv | trials(n) ~ 1 + (1 | sp),
+  data = dummy_simple,
+  family = binomial())
+```
+:::
+::: {.column width="50%"}
+
+MLE (`lme4::glmer`)
+```{r, echo=TRUE}
+fit <- lme4::glmer(
+   cbind(suv, n - suv) ~  (1 | sp),
+   data = dummy_simple,
+   family = binomial)
+```
+:::
+:::
+
+- Several packages, like `brms` and `rstanarm`, offer Bayesian estimation using syntax similar to `lme4`.
+
+::: notes
+- You need to rely on functions, such as `lme4::glmer`.
+:::
+
+---
+
 ## MLE vs. Bayesian estimation
 
 ::: incremental
